@@ -1,4 +1,4 @@
-$TESTED_MODULE_PATH = $PSScriptRoot | split-path -Parent | split-path -Parent
+$TESTED_MODULE_PATH = $PSScriptRoot | split-path -Parent | split-path -Parent | split-path -Parent
 
 function Test_GetPublicString{ 
 
@@ -25,5 +25,3 @@ function Test_GetPrivateString {
     Assert-AreEqual -Expected ("Private string [{0}]" -f $samplestring) -presented $result -Comment "Sample test failed"
     
 }
-
-Export-ModuleMember -Function Test_*
