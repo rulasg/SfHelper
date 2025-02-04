@@ -40,7 +40,7 @@ function Get-SfDataQuery{
 function Get-SfAccount{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][string]$Id
+        [Parameter(Mandatory,Position=0)][string]$Id
     )
 
     $attributes =@(
@@ -66,6 +66,9 @@ function Get-SfAccount{
     $ownerName = [string]::IsNullOrEmpty($ownerHtml) ? "" : $(Get-OwnerNameFromHtml -html $ownerHtml)
     Add-Member -InputObject $ret -MemberType NoteProperty -Name "OwnerName" -Value $ownerName
 
+    $ret.PSObject.Properties.Remove("Account_Owner__c")
+    $ret.PsObject.Properties.Remove("attributes")
+
     return $ret
 } Export-ModuleMember -Function Get-SfAccount
 
@@ -83,7 +86,7 @@ function Get-OwnerNameFromHtml {
 function Get-SfUser{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory,Position=0)]
         [string]$Id
     )
 
@@ -100,6 +103,9 @@ function Get-SfUser{
 
     # Get object
     $ret = Get-SfDataQuery -Type User -Id $Id -Attributes $attributes
+
+    # remove attributes
+    $ret.PsObject.Properties.Remove("attributes")
 
     return $ret
 
