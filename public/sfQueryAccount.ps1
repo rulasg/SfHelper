@@ -1,19 +1,21 @@
 
-Set-MyInvokeCommandAlias -Alias "sfaccountget" -Command  'sf data query --query "SELECT {attributes} FROM Account WHERE Id=''{id}''" -r=json'
+Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'sf data query --query "SELECT {attributes} FROM {type} WHERE Id=''{id}''" -r=json'
 
-function Get-SfAccount{
+function Get-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]
-        [string]$Id
+        [Parameter(Mandatory)][ValidateSet("Account", "User")][string]$Type,
+        [Parameter(Mandatory)][string]$Id,
+        [Parameter(Mandatory)][string[]]$Attributes
     )
 
     $params = @{
         id = $Id
-        attributes = "OwnerId,Name,Id,Account_Owner__c,Account_Segment__c,Account_Tier__c,Potential_Seats__c"
+        type = $Type
+        attributes = $attributes -join ","
     }
 
-    $result = Invoke-MyCommand -Command "sfaccountget" -Param $params
+    $result = Invoke-MyCommand -Command "sfDataQuery" -Param $params
 
     $obj = $result | ConvertFrom-Json -Depth 10
 
@@ -34,3 +36,71 @@ function Get-SfAccount{
 
     return $ret
 } Export-ModuleMember -Function Get-SfAccount
+
+function Get-SfAccount{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Id
+    )
+
+    $attributes =@(
+        "Id",
+        "Name",
+        "OwnerId",
+        "Industry",
+        "Account_Owner__c",
+        "Account_Segment__c",
+        "Account_Owner_Role__c"
+        "Account_Tier__c",
+        "Potential_Seats__c",
+        "Country_Name__c",
+        "Current_Seats__c",
+        "Current_ARR_10__c"
+    )
+
+    # Get object
+    $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes
+
+    # Transformations
+    $ownerHtml = $ret.Account_Owner__c
+    $ownerName = [string]::IsNullOrEmpty($ownerHtml) ? "" : $(Get-OwnerNameFromHtml -html $ownerHtml)
+    Add-Member -InputObject $ret -MemberType NoteProperty -Name "OwnerName" -Value $ownerName
+
+    return $ret
+} Export-ModuleMember -Function Get-SfAccount
+
+# Function to extract Owner Name from HTML
+function Get-OwnerNameFromHtml {
+    param (
+        [string]$html
+    )
+    if ($html -match '<a[^>]*>([^<]+)</a>') {
+        return $matches[1]
+    }
+    return $null
+}
+
+function Get-SfUser{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Id
+    )
+
+    $attributes =@(
+        "Id",
+        "Name"
+        "GitHub_Username__c",
+        "Email",
+        "Department",
+        "ManagerId",
+        "Username",
+        "Title"
+    )
+
+    # Get object
+    $ret = Get-SfDataQuery -Type User -Id $Id -Attributes $attributes
+
+    return $ret
+
+} Export-ModuleMember -Function Get-SfUser
