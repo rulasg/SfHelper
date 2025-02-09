@@ -6,7 +6,7 @@ Set-MyInvokeCommandAlias -Alias "sforglogin" -Command "sf org login device"
 Retrieves authorization information about Salesforce orgs.
 
 .DESCRIPTION
-This function calls the Salesforce CLI command `sf org list auth` to list authorization information about the orgs you created or logged into. 
+This function calls the Salesforce CLI command `sf org list auth` to list authorization information about the orgs you created or logged into.
 The command uses local authorization information cached by Salesforce CLI and does not connect to the orgs to verify their status, making it execute quickly.
 
 .EXAMPLE
