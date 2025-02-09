@@ -1,5 +1,5 @@
 Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'sf data query --query "SELECT {attributes} FROM {type} WHERE Id=''{id}''" -r=json'
-Set-MyInvokeCommandAlias -Alias "sfApiRequest" -Command 'sf api request --url "/services/data/v62.0/sobjects/{objectType}/{id}"'
+Set-MyInvokeCommandAlias -Alias "sfApiRequest" -Command 'sf api request rest /services/data/v62.0/sobjects/{objectType}/{id}'
 
 function Get-SfDataQuery{
     [CmdletBinding()]
@@ -34,8 +34,10 @@ function Get-SfDataQuery{
 
     $ret = $obj.result.records
 
+    $ret | Add-Member -MemberType NoteProperty -Name "QueryDate" -Value (Get-Date)
+
     return $ret
-} Export-ModuleMember -Function Get-SfAccount
+} Export-ModuleMember -Function Get-SfDataQuery
 
 function Get-SfAccount{
     [CmdletBinding()]
@@ -120,41 +122,18 @@ function Get-SfUser{
 
 } Export-ModuleMember -Function Get-SfUser
 
-function Get-SfObjectIdFromUrl {
-    param (
-        [string]$SfUrl
-    )
-
-    $uri = [System.Uri]::new($SfUrl)
-    $segments = $uri.Segments
-
-    # "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/view"
-    # "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/"
-    # "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB"
-    if ($segments.Length -ge 4 -and $segments[1] -eq "lightning/" -and $segments[2] -eq "r/") {
-        return $segments[4].TrimEnd('/')
-
-    #"https://github.my.salesforce.com/0010V00002Q8r78QAB"
-    } elseif ($segments.Length -eq 2) {
-        return $segments[-1].TrimEnd('/')
-
-    } else {
-        throw "Invalid Salesforce Object URL $SfUrl"
-    }
-} Export-ModuleMember -Function Get-SfObjectIdFromUrl
-
 function Get-SfApiRequest {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)][string]$SfUrl
+        [Parameter(Mandatory,Position=0)][string]$objectType,
+        [Parameter(Mandatory,Position=1)][string]$Id
     )
 
-    # Extract Id from URL
-    $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+    # sf api request rest /services/data/v62.0/sobjects/Account/0013o00002OHreEAAT
 
     # Call the sfApiRequest alias
     $params = @{
-        objectType = "Account"  # Assuming the object type is Account
+        objectType = $objectType
         id = $Id
     }
     $result = Invoke-MyCommand -Command "sfApiRequest" -Param $params
@@ -162,8 +141,8 @@ function Get-SfApiRequest {
     # Parse the output as JSON
     $obj = $result | ConvertFrom-Json -Depth 10
 
-    if ($obj.status -ne 0) {
-        throw "Status $($obj.status)"
+    if ($obj.Id -ne $Id) {
+        throw "Somwthing went wrong. Result : $obj"
     }
 
     return $obj

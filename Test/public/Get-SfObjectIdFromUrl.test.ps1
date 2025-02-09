@@ -1,5 +1,7 @@
 function Test_GetSfAccount{
 
+    . $PSScriptRoot/../../private/auxiliarfunctions.ps1
+
     $urlList = @(
         "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/view",
         "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/",
