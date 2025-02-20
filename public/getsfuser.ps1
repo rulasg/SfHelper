@@ -20,12 +20,13 @@ function Get-SfUser{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory,Position=0)]
-        [string]$Id
+        [string]$Id,
+        [string]$AdditionalAttributes
     )
 
-    $attributes =@(
+    $attributes = @(
         "Id",
-        "Name"
+        "Name",
         "GitHub_Username__c",
         "Email",
         "Department",
@@ -34,6 +35,11 @@ function Get-SfUser{
         "Title"
     )
 
+    if ($AdditionalAttributes) {
+        $additionalAttributesArray = $AdditionalAttributes -split ","
+        $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
+
     # Get object
     $ret = Get-SfDataQuery -Type User -Id $Id -Attributes $attributes
 
@@ -41,5 +47,4 @@ function Get-SfUser{
     # $ret.PsObject.Properties.Remove("attributes")
 
     return $ret
-
 } Export-ModuleMember -Function Get-SfUser
