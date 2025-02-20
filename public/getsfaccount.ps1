@@ -25,13 +25,14 @@ The function uses the `Get-SfDataQuery` function to perform the query and the `G
 function Get-SfAccount{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)][string]$SfUrl
+        [Parameter(Mandatory,Position=0)][string]$SfUrl,
+        [string]$AdditionalAttributes
     )
 
     # Extract Id from URL
     $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
 
-    $attributes =@(
+    $attributes = @(
         "Id",
         "Name",
         "OwnerId",
@@ -46,6 +47,11 @@ function Get-SfAccount{
         "Current_ARR_10__c",
         "Salesforce_Record_URL__c"
     )
+
+    if ($AdditionalAttributes) {
+        $additionalAttributesArray = $AdditionalAttributes -split ","
+        $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
 
     # Get object
     $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes
