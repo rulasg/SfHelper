@@ -1,3 +1,7 @@
+
+$PROFILE_ATTRIBUTES_FILE_PATH = "~/.helpers/sfhelper/sfattributes.txt"
+
+
 <#
 .SYNOPSIS
 Retrieves Salesforce Account data based on the specified Salesforce URL.
@@ -50,7 +54,15 @@ function Get-SfAccount{
 
     if ($AdditionalAttributes) {
         $additionalAttributesArray = $AdditionalAttributes -split ","
+        "adding attributes from additional attributes $additionalAttributesArray" | Write-Verbose
         $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
+
+    ## Add attributes from file
+    if (Test-Path $PROFILE_ATTRIBUTES_FILE_PATH) {
+        $attributesFromFile = Get-Content $PROFILE_ATTRIBUTES_FILE_PATH
+        "addring attributes from file $attributesFromFile" | Write-Verbose
+        $attributes += $attributesFromFile | Select-Object -Unique
     }
 
     # Get object
@@ -82,3 +94,21 @@ function Get-OwnerNameFromHtml {
     }
     return $null
 }
+
+<# 
+.SYNOPSIS
+Edit profile attributes file
+#>
+function Edit-SfProfileAttributesFile {
+    param (
+        [string]$FilePath = $PROFILE_ATTRIBUTES_FILE_PATH
+    )
+
+    if (-not (Test-Path $FilePath)) {
+        $null = New-Item -Path $FilePath -ItemType File -Force
+    }
+
+    Write-Host $FilePath
+
+    code $FilePath
+} Export-ModuleMember -Function Edit-SfProfileAttributesFile
