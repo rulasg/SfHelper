@@ -1,4 +1,4 @@
-function Test_GetSfAccount{
+function Test_GetSfAccountFromUrl{
 
     . $PSScriptRoot/../../private/auxiliarfunctions.ps1
 
