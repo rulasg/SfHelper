@@ -36,12 +36,6 @@ function Get-SfAccount{
     # Extract Id from URL
     $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
 
-    $cache = Get-Database -Key $Id
-
-    if ($cache) {
-        return $cache
-    }
-
     $attributes = @(
         "Id",
         "Name",
@@ -81,9 +75,6 @@ function Get-SfAccount{
     $ret.PSObject.Properties.Remove("Account_Owner__c")
 
     # $ret.PsObject.Properties.Remove("attributes")
-
-    # Cache the object
-    Save-Database -Key $Id -Database $ret
 
     return $ret
 } Export-ModuleMember -Function Get-SfAccount

@@ -1,0 +1,31 @@
+{
+  "status": 0,
+  "result": {
+    "records": [
+      {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v63.0/sobjects/Account/0010V00002KIWkaQAH"
+        },
+        "Id": "0010V00002KIWkaQAH",
+        "Name": "Contoso",
+        "OwnerId": "0053o000008Skv3AAC",
+        "Industry": "Retail",
+        "Account_Owner__c": "<a href=\"/0053o000008Skv3\" target=\"_self\">Oana Dinca</a> [<a href=\"/0010V00002KIWka/a?sendMail=1&amp;retURL=%2F0010V00002KIWka\" target=\"_self\">Change</a>]",
+        "Account_Segment__c": "Enterprise",
+        "Account_Owner_Role__c": "EMEA - Enterprise Sales Manager - South EMEA",
+        "Account_Tier__c": "Tier 1",
+        "Potential_Seats__c": 998,
+        "Country_Name__c": "Spain",
+        "Current_Seats__c": 600,
+        "Current_ARR_10__c": 116928,
+        "Salesforce_Record_URL__c": "https://github.my.salesforce.com/0010V00002KIWkaQAH",
+        "Potential_Seats_Manual__c": 1500,
+        "Website": "www.contos.es",
+        "PhotoUrl": "/services/images/photo/0010V00002KIWkaQAH"
+      }
+    ],
+    "totalSize": 1,
+    "done": true
+  }
+}
