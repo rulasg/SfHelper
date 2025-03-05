@@ -4,7 +4,8 @@
 {
 	"name": "PowerShell",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/powershell:lts-debian-11",
+	"image": "mcr.microsoft.com/powershell:lts-ubuntu-22.04",
+	
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {},
 		"ghcr.io/devcontainers/features/powershell:1": {},
