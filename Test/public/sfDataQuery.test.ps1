@@ -5,7 +5,7 @@ function Test_GetSfAccount{
     $mockAttrib = @{attributes = @("Potential_Seats_Manual__c","Website","PhotoUrl")}
     Mock_Config -Config $mockAttrib
 
-    $dbstore = Invoke-MyCommand -Command GetDatabaseStorePath
+    $dbstore = Invoke-MyCommand -Command $DB_INVOKE_GET_ROOT_PATH_CMD
     Assert-AreEqual -Expected "test_database_path" -Presented $dbstore
 
     $attrib = "Id,Name,OwnerId,Industry,Account_Owner__c,Account_Segment__c,Account_Owner_Role__c,Account_Tier__c,Potential_Seats__c,Country_Name__c,Current_Seats__c,Current_ARR_10__c,Salesforce_Record_URL__c,Potential_Seats_Manual__c,Website,PhotoUrl"

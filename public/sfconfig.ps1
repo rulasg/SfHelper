@@ -1,7 +1,8 @@
 
-$CONFIG_INVOKE_ALIAS = "SfGetConfigRootPath"
+$CONFIG_INVOKE_GET_ROOT_PATH_ALIAS = "SfGetConfigRootPath"
+$CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetConfigRootPath"
 
-Set-MyInvokeCommandAlias -Alias $CONFIG_INVOKE_ALIAS -Command "Invoke-SfGetConfigRootPath"
+Set-MyInvokeCommandAlias -Alias $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS -Command $CONFIG_INVOKE_GET_ROOT_PATH_CMD
 
 function Invoke-SfGetConfigRootPath{
     $configRoot = GetConfigRootPath
