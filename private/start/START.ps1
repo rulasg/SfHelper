@@ -9,5 +9,11 @@ if (! $LOADED_EARLYLOADED){
     # Load Invoke helper functions
     . $(($PSScriptRoot | Join-Path -ChildPath SetMyInvokeCommandAlias.ps1 | Get-Item).FullName)
 
-}
+    function Get-ModuleName{
+        $local = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent
+        $moduleName = (Get-ChildItem -Path $local -Filter *.psd1 | Select-Object -First 1).BaseName
+        
+        return $moduleName
+    }
 
+}

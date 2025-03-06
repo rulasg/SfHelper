@@ -59,10 +59,11 @@ function Get-SfAccount{
     }
 
     ## Add attributes from file
-    if (Test-Path $PROFILE_ATTRIBUTES_FILE_PATH) {
-        $attributesFromFile = Get-Content $PROFILE_ATTRIBUTES_FILE_PATH
-        "addring attributes from file $attributesFromFile" | Write-Verbose
-        $attributes += $attributesFromFile | Select-Object -Unique
+    if (Test-Configuration ) {
+        $config = Get-Configuration
+        $attributesFromConfig = $config.attributes
+        "adding attributes from config $($attributesFromConfig -join ',' )" | Write-Verbose
+        $attributes += $attributesFromConfig | Select-Object -Unique
     }
 
     # Get object

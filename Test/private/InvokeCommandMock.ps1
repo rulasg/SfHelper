@@ -1,6 +1,6 @@
 # Managing dependencies
-$MODULE_INVOKATION_TAG = "project-migration-module"
-$MODULE_INVOKATION_TAG_MOCK = "project-migration-module_Mock"
+$MODULE_INVOKATION_TAG = "SfHelperModule"
+$MODULE_INVOKATION_TAG_MOCK = "SfHelperModule-Mock"
 $ROOT = $PSScriptRoot | Split-Path -Parent
 $MOCK_PATH = $ROOT | Join-Path -ChildPath 'private' -AdditionalChildPath 'mocks'
 
@@ -136,10 +136,27 @@ function Save-InvokeAsMockFile{
 
     $result = Invoke-Expression -Command $Command
 
-    $result | ConvertTo-Json -Depth 100 | Out-File -FilePath $filePath
+    $json = $result | ConvertTo-Json -Depth 100 
+    
+    $json | Out-File -FilePath $filePath
 
     Write-Host $FileName
 } Export-ModuleMember -Function Save-InvokeAsMockFile
+
+function Save-InvokeAsMockFileJson{
+    param(
+        [Parameter(Mandatory=$true)] [string]$Command,
+        [Parameter(Mandatory=$true)] [string]$FileName
+    )
+
+    $filePath = Get-MockFileFullPath -fileName $fileName
+
+    $result = Invoke-Expression -Command $Command
+
+    $result | Out-File -FilePath $filePath
+
+    Write-Host $FileName
+} Export-ModuleMember -Function Save-InvokeAsMockFileJson
 
 function Assert-MockFileNotfound{
     param(

@@ -4,7 +4,7 @@
 if (!$SET_MY_INVOKECOMMANDALIAS_LOADED){
     $SET_MY_INVOKECOMMANDALIAS_LOADED = $true
 
-    $MODULE_INVOKATION_TAG = "sfhelper-module"
+    $MODULE_INVOKATION_TAG = "SfHelperModule"
 
     function Set-MyInvokeCommandAlias{
         [CmdletBinding(SupportsShouldProcess)]
