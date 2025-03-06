@@ -1,6 +1,31 @@
 # Configuration management module
 
-Set-MyInvokeCommandAlias -Alias GetConfigRootPath -Command "Invoke-GetConfigRootPath"
+# Include design description
+# This is the function ps1. This file is the same for all modules.
+# Create a public psq with variables, Set-MyInvokeCommandAlias call and Invoke public function.
+# Invoke function will call back `GetConfigRootPath` to use production root path
+# Mock this Invoke function with Set-MyInvokeCommandAlias to set the Store elsewhere
+# This ps1 has function `GetConfigFile` that will call `Invoke-MyCommand -Command $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS`
+# to use the store path, mocked or not, to create the final store file name.
+# All functions of this ps1 will depend on `GetConfigFile` for functionality.
+#
+# TODO : Create a related public ps1 
+
+# Create a related public ps1 
+# 1. define $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS. Make it unique.
+# 2. define $CONFIG_INVOKE_GET_ROOT_PATH_CMD. Point to the invoke function that calls GetConfigRootPath to get the store path
+#
+# Sample code (replace "MyModule" with a unique module prefix):
+#   $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS = "MyModuleGetConfigRootPath"
+#   $CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-MyModuleGetConfigRootPath"
+#  
+#   Set-MyInvokeCommandAlias -Alias $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS -Command $CONFIG_INVOKE_GET_ROOT_PATH_CMD
+#  
+#   function Invoke-MyModuleGetConfigRootPath{
+#       $configRoot = GetConfigRootPath
+#       return $configRoot
+#   } Export-ModuleMember -Function Invoke-MyModuleGetConfigRootPath
+
 
 $moduleName = Get-ModuleName
 $CONFIG_ROOT = [System.Environment]::GetFolderPath('UserProfile') | Join-Path -ChildPath ".helpers" -AdditionalChildPath $moduleName, "config"
@@ -10,13 +35,13 @@ if(-Not (Test-Path $CONFIG_ROOT)){
     New-Item -Path $CONFIG_ROOT -ItemType Directory
 }
 
-function Invoke-GetConfigRootPath {
+function GetConfigRootPath {
     [CmdletBinding()]
     param()
 
     $configRoot = $CONFIG_ROOT
     return $configRoot
-} Export-ModuleMember -Function Invoke-GetConfigRootPath
+}
 
 function GetConfigFile {
     [CmdletBinding()]
@@ -24,7 +49,7 @@ function GetConfigFile {
         [Parameter(Mandatory = $true, Position = 0)][string]$Key
     )
 
-    $configRoot = Invoke-MyCommand -Command GetConfigRootPath
+    $configRoot = Invoke-MyCommand -Command $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS
     $path = Join-Path -Path $configRoot -ChildPath "$Key.json"
     return $path
 }
