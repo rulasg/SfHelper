@@ -1,6 +1,6 @@
 # Configuration management module
 
-Set-MyInvokeCommandAlias -Alias GetConfigRootPath -Command "Invoke-GetConfigRootPath"
+# Create a related public ps1 and define $CONFIG_INVOKE_ALIAS. Make it unique.
 
 $moduleName = Get-ModuleName
 $CONFIG_ROOT = [System.Environment]::GetFolderPath('UserProfile') | Join-Path -ChildPath ".helpers" -AdditionalChildPath $moduleName, "config"
@@ -10,13 +10,13 @@ if(-Not (Test-Path $CONFIG_ROOT)){
     New-Item -Path $CONFIG_ROOT -ItemType Directory
 }
 
-function Invoke-GetConfigRootPath {
+function GetConfigRootPath {
     [CmdletBinding()]
     param()
 
     $configRoot = $CONFIG_ROOT
     return $configRoot
-} Export-ModuleMember -Function Invoke-GetConfigRootPath
+}
 
 function GetConfigFile {
     [CmdletBinding()]
@@ -24,7 +24,7 @@ function GetConfigFile {
         [Parameter(Mandatory = $true, Position = 0)][string]$Key
     )
 
-    $configRoot = Invoke-MyCommand -Command GetConfigRootPath
+    $configRoot = Invoke-MyCommand -Command $CONFIG_INVOKE_ALIAS
     $path = Join-Path -Path $configRoot -ChildPath "$Key.json"
     return $path
 }

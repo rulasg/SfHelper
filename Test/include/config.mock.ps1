@@ -1,4 +1,5 @@
 
+$INVOKE_GETCONFIGROOTPATH = "Invoke-SfGetConfigRootPath"
 
 function Mock_Config{
     param(
@@ -23,6 +24,6 @@ function Mock_Config{
     }
 
     # Mock invoke call
-    MockCallToString "Invoke-GetConfigRootPath" -OutString $MOCK_CONFIG_PATH
+    MockCallToString $INVOKE_GETCONFIGROOTPATH -OutString $MOCK_CONFIG_PATH
 
 }
