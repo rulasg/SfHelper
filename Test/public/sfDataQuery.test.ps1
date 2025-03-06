@@ -1,7 +1,9 @@
 function Test_GetSfAccount{
 
     Reset-InvokeCommandMock
-    Initialize-MockDatabaseRoot -ResetDatabase
+    Mock_Database -ResetDatabase
+    $mockAttrib = @{attributes = @("Potential_Seats_Manual__c","Website","PhotoUrl")}
+    Mock_Config -Config $mockAttrib
 
     $dbstore = Invoke-MyCommand -Command GetDatabaseStorePath
     Assert-AreEqual -Expected "test_database_path" -Presented $dbstore
@@ -25,10 +27,11 @@ function Test_GetSfAccount{
 
     # Remove sf data 
     Reset-InvokeCommandMock
-    Initialize-MockDatabaseRoot
+    Mock_Database
+    Mock_Config -Config $mockAttrib
 
     # Act with cache
-    $result = get-sfAccount https://github.lightning.force.com/lightning/r/Account/0010V00002KIWkaQAH/view
+    $result = Get-SfAccount https://github.lightning.force.com/lightning/r/Account/0010V00002KIWkaQAH/view
     Assert-AreEqual -Expected $Id -Presented $result.Id
 
 }
