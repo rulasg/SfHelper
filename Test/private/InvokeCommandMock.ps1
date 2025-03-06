@@ -146,8 +146,7 @@ function Save-InvokeAsMockFile{
 function Save-InvokeAsMockFileJson{
     param(
         [Parameter(Mandatory=$true)] [string]$Command,
-        [Parameter(Mandatory=$true)] [string]$FileName,
-        [Parameter(Mandatory=$false)] [switch]$Force
+        [Parameter(Mandatory=$true)] [string]$FileName
     )
 
     $filePath = Get-MockFileFullPath -fileName $fileName
