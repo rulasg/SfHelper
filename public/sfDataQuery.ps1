@@ -3,7 +3,7 @@ Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'sf data query --query "
 function Get-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User")][string]$Type,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
         [Parameter(Mandatory)][string[]]$Attributes
     )

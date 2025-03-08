@@ -51,13 +51,13 @@ function Add-SfConfigAttribute{
             $config = @{}
         }
     
-        if(-Not $config.attributes){
-            $config.attributes = @()
+        if(-Not $config.account_attributes){
+            $config.account_attributes = @()
         }
     }
 
     process{
-        $config.attributes += $Attribute
+        $config.account_attributes += $Attribute
     }
     
     End{
@@ -67,7 +67,7 @@ function Add-SfConfigAttribute{
         }
 
         $config = Get-SfConfig
-        Write-Output $config.attributes
+        Write-Output $config.account_attributes
         
     }
 
