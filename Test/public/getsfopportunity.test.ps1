@@ -26,7 +26,7 @@ function Test_GetSfOpportunity{
 
     # Act with cache
     $result = Get-SfOpportunity -SfUrl $url
-    
+
     # Assert
     Assert-AreEqual -Expected $id -Presented $result.Id
 
