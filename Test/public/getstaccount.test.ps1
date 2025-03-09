@@ -45,8 +45,9 @@ function Test_GetSfAccount_Transformations{
     # Act with out cache
     $result = Get-SfAccount https://github.lightning.force.com/lightning/r/Account/0010V00002KIWkaQAH/view
 
-    # Assert
+    # Transformation Account_Owner__c -> OwnerName
     Assert-AreEqual -Expected "Oana Dinca" -Presented $result.OwnerName
+    Assert-IsNull -Object $result.Account_Owner__c
 
 }
 

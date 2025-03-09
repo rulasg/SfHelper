@@ -10,21 +10,27 @@ function Edit-AttributeValueFromHTML{
 
     process{
 
+        # Check if the attribute exists in the object
+        if($null -eq $Object.$AttributeName) {
+            "Attribute $AttributeName is not found in object $($object.id)" | Write-Warning
+            return $Object
+        }
+
         $value = Get-OwnerNameFromHtml -html $($Object.$AttributeName)
-        
+
         # return if value is null
         if ($null -eq $value) {
             "Attribute $AttributeName is not found or empty in object $($object.id)" | Write-Warning
             return $Object
         }
-        
+
         # Add the new attribute
         Add-Member -InputObject $ret -MemberType NoteProperty -Name $NewAttributeName -Value $value
-        
+
         if ($RemoveOriginalAttribute) {
-            $Object.Properties.Remove($AttributeName)
+            $Object.PsObject.Properties.Remove($AttributeName)
         }
-        
+
         return $Object
     }
 

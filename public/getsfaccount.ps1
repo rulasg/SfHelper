@@ -73,12 +73,10 @@ function Get-SfAccount{
     $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes
 
     # Transformations
-
-    ## Clean up the Account_Owner__c field to show the name of the owner
-    Add-Member -InputObject $ret -MemberType NoteProperty -Name "OwnerName" -Value $(Get-OwnerNameFromHtml -html $($ret.Account_Owner__c))
-    $ret.PSObject.Properties.Remove("Account_Owner__c")
-
-    # $ret.PsObject.Properties.Remove("attributes")
+    $ret = $ret | Edit-AttributeValueFromHTML `
+        -AttributeName "Account_Owner__c" `
+        -NewAttributeName "OwnerName" `
+        -RemoveOriginalAttribute
 
     return $ret
 } Export-ModuleMember -Function Get-SfAccount
