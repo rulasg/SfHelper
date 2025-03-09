@@ -1,5 +1,5 @@
 
-# CONFIG MOCK 
+# CONFIG MOCK
 #
 # This file is used to mock the config path and the config file
 # for the tests. It creates a mock config path and a mock config file
@@ -11,7 +11,7 @@
 # Sample file
 # # CONFIG MOCK VARIABLES
 # # This file is required for CONFIF MOCK to work
-# $CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetConfigRootPath" 
+# $CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetConfigRootPath"
 # $MOCK_CONFIG_PATH = "test_config_path"
 
 function Mock_Config{

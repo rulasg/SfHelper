@@ -1,4 +1,4 @@
-# DATABASE MOCK 
+# DATABASE MOCK
 #
 # This file is used to mock the database path and the database file
 # for the tests. It creates a mock database path and a mock database file
@@ -39,7 +39,7 @@ function Reset-DatabaseStore{
     param()
 
         $databaseRoot = Invoke-MyCommand -Command $DB_INVOKE_GET_ROOT_PATH_ALIAS
-    
+
         Remove-Item -Path $databaseRoot -Recurse -Force -ErrorAction SilentlyContinue
 
         New-Item -Path $databaseRoot -ItemType Directory
