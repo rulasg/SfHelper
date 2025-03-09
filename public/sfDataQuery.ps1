@@ -57,7 +57,7 @@ function getcacheKey{
     # Add hash of attributes to key
     $attribString = $Attributes -join ","
     "Attributes : $attribString" | Write-Verbose
-    $attributesHash = $attribString.GetHashCode()
+    $attributesHash = $attribString | Get-HashCode
     "AttributesHash : $attributesHash" | Write-Verbose
 
     $cacheKey = "sfDataQuery-$Type-$Id-$attributesHash"

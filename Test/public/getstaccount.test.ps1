@@ -11,7 +11,7 @@ function Test_GetSfAccount{
     # Mock Sf call
     $id = "0010V00002KIWkaQAH"
     $url = "https://github.lightning.force.com/lightning/r/Account/$id/view"
-    $filename = "sfDataQuery-Account-0010V00002KIWkaQAH-2035968354.json"
+    $filename = "sfDataQuery-Account-$id-01F5F2DFDE481D1146E8D504BB935E4D.json"
     Mock_SfDataQuery_Account_0010V00002KIWkaQAH -AdditionalAttributes $mockAttrib.account_attributes
 
     # Act with out cache

@@ -7,7 +7,7 @@ function Test_GetSfOpportunity{
     
     # Mock Sf call
     $id = "0065c00001SFRbYAAX"
-    $cacheFileName = "sfDataQuery-opportunity-$id--1356351343.json"
+    $cacheFileName = "sfDataQuery-opportunity-$id-5106802FEB193611777BC7DA26122EF5.json"
     $url = "https://github.lightning.force.com/lightning/r/Account/$id/view"
     Mock_SfDataQuery_Opportunity_0065c00001SFRbYAAX
 
