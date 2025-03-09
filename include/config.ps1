@@ -81,7 +81,7 @@ function Get-Configuration {
     }
 
     try{
-        $ret = Get-Content $path | ConvertFrom-Json -ErrorAction Stop
+        $ret = Get-Content $path | ConvertFrom-Json -AsHashtable -ErrorAction Stop
         return $ret
     }
     catch{

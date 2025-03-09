@@ -30,6 +30,11 @@ function Get-SfOpportunity{
 
     # Extract Id from URL
     $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+    $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
+
+    if ($type -ne "Opportunity") {
+        throw "Invalid Salesforce Object URL $SfUrl"
+    }
 
     $attributes = @(
         "Id",

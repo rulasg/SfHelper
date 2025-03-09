@@ -44,23 +44,27 @@ function Open-SfConfig{
 function Add-SfConfigAttribute{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, ValueFromPipeline, Position = 0)][string]$Attribute
+        [Parameter(Mandatory,Position=0)][ValidateSet("Account", "User", "Opportunity")][string]$objectType,
+
+        [Parameter(Mandatory, ValueFromPipeline, Position = 1)][string]$Attribute
+
     )
 
     begin{
         $config = Get-Configuration
+        $configAttribute = ($objectType + "_attributes").ToLower()
 
         if(-Not $config){
             $config = @{}
         }
     
-        if(-Not $config.account_attributes){
-            $config.account_attributes = @()
+        if(-Not $config.$configAttribute){
+            $config.$configAttribute = @()
         }
     }
 
     process{
-        $config.account_attributes += $Attribute
+        $config.$configAttribute += $Attribute
     }
     
     End{
@@ -70,7 +74,7 @@ function Add-SfConfigAttribute{
         }
 
         $config = Get-SfConfig
-        Write-Output $config.account_attributes
+        Write-Output $config.$configAttribute
         
     }
 

@@ -3,7 +3,7 @@ Set-MyInvokeCommandAlias -Alias "sfApiRequest" -Command 'sf api request rest /se
 function Get-SfApiRequest {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User")][string]$objectType,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity")][string]$objectType,
         [Parameter(Mandatory,Position=1)][string]$Id
     )
 

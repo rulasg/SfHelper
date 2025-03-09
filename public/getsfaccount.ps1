@@ -32,6 +32,11 @@ function Get-SfAccount{
 
     # Extract Id from URL
     $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+    $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
+
+    if ($type -ne "Account") {
+        throw "Invalid Salesforce Object URL $SfUrl"
+    }
 
     $attributes = @(
         "Id",
