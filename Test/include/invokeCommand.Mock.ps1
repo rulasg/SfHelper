@@ -1,8 +1,16 @@
-# Managing dependencies
-$MODULE_INVOKATION_TAG = "SfHelperModule"
-$MODULE_INVOKATION_TAG_MOCK = "SfHelperModule-Mock"
-$ROOT = $PSScriptRoot | Split-Path -Parent
-$MOCK_PATH = $ROOT | Join-Path -ChildPath 'private' -AdditionalChildPath 'mocks'
+
+# INVOKE COMMAND MOCK
+#
+# This includes help commands to mock invokes in a test module
+# You need to set the following variables
+# $MODULE_INVOKATION_TAG : name of the module that you are testing. This needs to match with the Tag used in the module you are testing.
+# $MODULE_INVOKATION_TAG_MOCK : Tag for the mock functions on the testing moodule you are loading this include in
+# MOCK_PATH : path to the mocks folder. This is where the mock files will be saved and loaded from.
+#
+# Sample:
+# $MODULE_INVOKATION_TAG = "SfHelperModule"
+# $MODULE_INVOKATION_TAG_MOCK = "SfHelperModule-Mock"
+# $MOCK_PATH = $PSScriptRoot | Split-Path -Parent | Join-Path -ChildPath 'private' -AdditionalChildPath 'mocks'
 
 
 function Set-InvokeCommandMock{
