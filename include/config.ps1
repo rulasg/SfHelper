@@ -1,5 +1,7 @@
+# CONFIG
+#
 # Configuration management module
-
+#
 # Include design description
 # This is the function ps1. This file is the same for all modules.
 # Create a public psq with variables, Set-MyInvokeCommandAlias call and Invoke public function.
@@ -10,7 +12,7 @@
 # All functions of this ps1 will depend on `GetConfigFile` for functionality.
 #
 # TODO : Create a related public ps1 
-
+#
 # Create a related public ps1 
 # 1. define $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS. Make it unique.
 # 2. define $CONFIG_INVOKE_GET_ROOT_PATH_CMD. Point to the invoke function that calls GetConfigRootPath to get the store path
@@ -27,7 +29,8 @@
 #   } Export-ModuleMember -Function Invoke-MyModuleGetConfigRootPath
 
 
-$moduleName = Get-ModuleName
+$moduleRootPath = $PSScriptRoot | Split-Path -Parent
+$moduleName = (Get-ChildItem -Path $moduleRootPath -Filter *.psd1 | Select-Object -First 1).BaseName
 $CONFIG_ROOT = [System.Environment]::GetFolderPath('UserProfile') | Join-Path -ChildPath ".helpers" -AdditionalChildPath $moduleName, "config"
 
 # Create the config root if it does not exist

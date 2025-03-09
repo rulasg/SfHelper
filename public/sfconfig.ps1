@@ -1,3 +1,4 @@
+# Required by INCLUDE CONFIG
 
 $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS = "SfGetConfigRootPath"
 $CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetConfigRootPath"
@@ -9,6 +10,8 @@ function Invoke-SfGetConfigRootPath{
     return $configRoot
 } Export-ModuleMember -Function Invoke-SfGetConfigRootPath
 
+
+# Extra functions not needed by INCLUDE CONFIG
 
 function Get-SfConfig{
     [CmdletBinding()]

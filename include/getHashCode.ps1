@@ -1,4 +1,6 @@
 
+# Get HASH CODE
+#
 # This script defines a function to compute the MD5 hash of a given string.
 # The hash is returned as a hexadecimal string without dashes.
 # The function is useful for generating unique keys based on input strings,
