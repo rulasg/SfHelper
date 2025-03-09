@@ -3,7 +3,7 @@ Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'sf data query --query "
 function Get-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User")][string]$Type,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
         [Parameter(Mandatory)][string[]]$Attributes
     )
@@ -57,7 +57,7 @@ function getcacheKey{
     # Add hash of attributes to key
     $attribString = $Attributes -join ","
     "Attributes : $attribString" | Write-Verbose
-    $attributesHash = $attribString.GetHashCode()
+    $attributesHash = $attribString | Get-HashCode
     "AttributesHash : $attributesHash" | Write-Verbose
 
     $cacheKey = "sfDataQuery-$Type-$Id-$attributesHash"

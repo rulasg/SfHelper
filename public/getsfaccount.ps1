@@ -1,7 +1,4 @@
 
-$PROFILE_ATTRIBUTES_FILE_PATH = "~/.helpers/sfhelper/sfattributes.txt"
-
-
 <#
 .SYNOPSIS
 Retrieves Salesforce Account data based on the specified Salesforce URL.
@@ -35,6 +32,11 @@ function Get-SfAccount{
 
     # Extract Id from URL
     $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+    $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
+
+    if ($type -ne "Account") {
+        throw "Invalid Salesforce Object URL $SfUrl"
+    }
 
     $attributes = @(
         "Id",
@@ -52,16 +54,17 @@ function Get-SfAccount{
         "Salesforce_Record_URL__c"
     )
 
+    # Add attributes from parameter
     if ($AdditionalAttributes) {
         $additionalAttributesArray = $AdditionalAttributes -split ","
         "adding attributes from additional attributes $additionalAttributesArray" | Write-Verbose
         $attributes += $additionalAttributesArray | Select-Object -Unique
     }
 
-    ## Add attributes from file
+    ## Add attributes from config
     if (Test-Configuration ) {
         $config = Get-Configuration
-        $attributesFromConfig = $config.attributes
+        $attributesFromConfig = $config.account_attributes
         "adding attributes from config $($attributesFromConfig -join ',' )" | Write-Verbose
         $attributes += $attributesFromConfig | Select-Object -Unique
     }
@@ -70,46 +73,12 @@ function Get-SfAccount{
     $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes
 
     # Transformations
-
-    ## Clean up the Account_Owner__c field to show the name of the owner
-    Add-Member -InputObject $ret -MemberType NoteProperty -Name "OwnerName" -Value $(Get-OwnerNameFromHtml -html $($ret.Account_Owner__c))
-    $ret.PSObject.Properties.Remove("Account_Owner__c")
-
-    # $ret.PsObject.Properties.Remove("attributes")
+    $ret = $ret | Edit-AttributeValueFromHTML `
+        -AttributeName "Account_Owner__c" `
+        -NewAttributeName "OwnerName" `
+        -RemoveOriginalAttribute
 
     return $ret
 } Export-ModuleMember -Function Get-SfAccount
 
-# Function to extract Owner Name from HTML
-function Get-OwnerNameFromHtml {
-    param (
-        [string]$html
-    )
 
-    if ([string]::IsNullOrEmpty($html)) {
-        return ""
-    }
-
-    if ($html -match '<a[^>]*>([^<]+)</a>') {
-        return $matches[1]
-    }
-    return $null
-}
-
-<# 
-.SYNOPSIS
-Edit profile attributes file
-#>
-function Edit-SfProfileAttributesFile {
-    param (
-        [string]$FilePath = $PROFILE_ATTRIBUTES_FILE_PATH
-    )
-
-    if (-not (Test-Path $FilePath)) {
-        $null = New-Item -Path $FilePath -ItemType File -Force
-    }
-
-    Write-Host $FilePath
-
-    code $FilePath
-} Export-ModuleMember -Function Edit-SfProfileAttributesFile

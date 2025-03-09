@@ -1,5 +1,7 @@
+# DATABASE V2
+#
 # Database driver to store the cache
-
+#
 # Include design description
 # This is the function ps1. This file is the same for all modules.
 # Create a public psq with variables, Set-MyInvokeCommandAlias call and Invoke public function.
@@ -28,9 +30,8 @@
 #  
 #   } Export-ModuleMember -Function Invoke-SfGetDbRootPath
 
-# Invoke to allow mockig the store path on testing
-
-$moduleName = Get-ModuleName
+$moduleRootPath = $PSScriptRoot | Split-Path -Parent
+$moduleName = (Get-ChildItem -Path $moduleRootPath -Filter *.psd1 | Select-Object -First 1).BaseName
 $DATABASE_ROOT = [System.Environment]::GetFolderPath('UserProfile') | Join-Path -ChildPath ".helpers" -AdditionalChildPath $moduleName, "databaseCache"
 
 # Create the database root if it does not exist
@@ -51,6 +52,11 @@ function GetDatabaseFile{
     param(
         [Parameter(Position = 0)][string]$Key
     )
+
+    # throw if DB_INVOKE_GET_ROOT_PATH_ALIAS is not set
+    if (-not $DB_INVOKE_GET_ROOT_PATH_ALIAS) {
+        throw "DB_INVOKE_GET_ROOT_PATH_ALIAS is not set. Please set it before calling GetDatabaseFile."
+    }
 
     $databaseRoot = Invoke-MyCommand -Command $DB_INVOKE_GET_ROOT_PATH_ALIAS
 

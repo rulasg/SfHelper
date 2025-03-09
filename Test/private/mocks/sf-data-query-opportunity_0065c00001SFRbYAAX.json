@@ -1,0 +1,18 @@
+{
+  "status": 0,
+  "result": {
+    "records": [
+      {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v63.0/sobjects/Opportunity/0065c00001SFRbYAAX"
+        },
+        "Id": "0065c00001SFRbYAAX",
+        "Name": "Secret Services IT 10 Seat 2025_Q3 Order",
+        "OwnerId": "0053o000008Skv3AAC"
+      }
+    ],
+    "totalSize": 1,
+    "done": true
+  }
+}

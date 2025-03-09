@@ -4,12 +4,12 @@ Write-Information -Message ("Loading {0} ..." -f ($PSCommandPath | Split-Path -L
 $MODULE_PATH = $PSScriptRoot
 
 #Get public and private function definition files.
-$Include  = @( Get-ChildItem -Path $MODULE_PATH\include\*.ps1 -Recurse -ErrorAction SilentlyContinue )
-$Public  = @( Get-ChildItem -Path $MODULE_PATH\public\*.ps1 -Recurse -ErrorAction SilentlyContinue )
+$Include  = @( Get-ChildItem -Path $MODULE_PATH\include\*.ps1 -ErrorAction SilentlyContinue )
 $Private = @( Get-ChildItem -Path $MODULE_PATH\private\*.ps1 -Recurse -ErrorAction SilentlyContinue )
+$Public  = @( Get-ChildItem -Path $MODULE_PATH\public\*.ps1 -Recurse -ErrorAction SilentlyContinue )
 
 #Dot source the files
-Foreach($import in @($Include + $Public + $Private))
+Foreach($import in @($Include + $Private + $Public))
 {
     Try
     {

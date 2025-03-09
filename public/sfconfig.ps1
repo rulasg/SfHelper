@@ -1,3 +1,4 @@
+# Required by INCLUDE CONFIG
 
 $CONFIG_INVOKE_GET_ROOT_PATH_ALIAS = "SfGetConfigRootPath"
 $CONFIG_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetConfigRootPath"
@@ -9,6 +10,8 @@ function Invoke-SfGetConfigRootPath{
     return $configRoot
 } Export-ModuleMember -Function Invoke-SfGetConfigRootPath
 
+
+# Extra functions not needed by INCLUDE CONFIG
 
 function Get-SfConfig{
     [CmdletBinding()]
@@ -41,23 +44,27 @@ function Open-SfConfig{
 function Add-SfConfigAttribute{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, ValueFromPipeline, Position = 0)][string]$Attribute
+        [Parameter(Mandatory,Position=0)][ValidateSet("Account", "User", "Opportunity")][string]$objectType,
+
+        [Parameter(Mandatory, ValueFromPipeline, Position = 1)][string]$Attribute
+
     )
 
     begin{
         $config = Get-Configuration
+        $configAttribute = ($objectType + "_attributes").ToLower()
 
         if(-Not $config){
             $config = @{}
         }
     
-        if(-Not $config.attributes){
-            $config.attributes = @()
+        if(-Not $config.$configAttribute){
+            $config.$configAttribute = @()
         }
     }
 
     process{
-        $config.attributes += $Attribute
+        $config.$configAttribute += $Attribute
     }
     
     End{
@@ -67,7 +74,7 @@ function Add-SfConfigAttribute{
         }
 
         $config = Get-SfConfig
-        Write-Output $config.attributes
+        Write-Output $config.$configAttribute
         
     }
 

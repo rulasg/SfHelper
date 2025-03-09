@@ -1,4 +1,4 @@
-
+# This file is required for INCLUDE DATABASE V2
 
 $DB_INVOKE_GET_ROOT_PATH_ALIAS = "SfGetDbRootPath"
 $DB_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetDbRootPath"
@@ -14,6 +14,7 @@ function Invoke-SfGetDbRootPath{
 
 } Export-ModuleMember -Function Invoke-SfGetDbRootPath
 
+# Extra functions not needed by INCLUDE DATABASE V2
 
 function Reset-DatabaseStore{
     [CmdletBinding()]
