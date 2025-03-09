@@ -1,5 +1,20 @@
-
-$DB_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetDbRootPath"
+# DATABASE MOCK
+#
+# This file is used to mock the database path and the database file
+# for the tests. It creates a mock database path and a mock database file
+# and sets the database path to the mock database path.
+# We need to define variables for this include to work
+# $MOCK_DATABASE_PATH : The path used as the mock database folder
+# $DB_INVOKE_GET_ROOT_PATH_CMD : Invoke command that is needed to be mocked
+# $DB_INVOKE_GET_ROOT_PATH_ALIAS : Invoke function to retreive the root path of the database
+#
+# Sample file
+# # DATABASE MOCK VARIABLES
+# # This file is required for DATABASE MOCK to work
+# $DB_INVOKE_GET_ROOT_PATH_CMD = "Invoke-SfGetDbRootPath"
+# $DB_INVOKE_GET_ROOT_PATH_ALIAS = "SfGetDbRootPath"
+#
+# $MOCK_DATABASE_PATH = "test_database_path"
 
 function Mock_Database([switch]$ResetDatabase){
 
@@ -17,4 +32,16 @@ function Mock_Database([switch]$ResetDatabase){
 function Get-Mock_DatabaseStore{
     $dbstore = Invoke-MyCommand -Command $DB_INVOKE_GET_ROOT_PATH_CMD
     return $dbstore
+}
+
+function Reset-DatabaseStore{
+    [CmdletBinding()]
+    param()
+
+        $databaseRoot = Invoke-MyCommand -Command $DB_INVOKE_GET_ROOT_PATH_ALIAS
+
+        Remove-Item -Path $databaseRoot -Recurse -Force -ErrorAction SilentlyContinue
+
+        New-Item -Path $databaseRoot -ItemType Directory
+
 }
