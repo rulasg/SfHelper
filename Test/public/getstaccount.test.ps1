@@ -1,9 +1,9 @@
 function Test_GetSfAccount{
 
     Reset-InvokeCommandMock
-    
+
     $mockAttrib = @{account_attributes = @("Potential_Seats_Manual__c","Website","PhotoUrl")}
-    
+
     # Mocks
     Mock_Database -ResetDatabase
     Mock_Config -Config $mockAttrib
@@ -29,7 +29,7 @@ function Test_GetSfAccount{
 
     # Act with cache
     $result = Get-SfAccount -SfUrl $url
-    
+
     # Assert
     Assert-AreEqual -Expected "0010V00002KIWkaQAH" -Presented $result.Id
 }
@@ -45,7 +45,7 @@ function Test_GetSfAccount_Transformations{
     # Act with out cache
     $result = Get-SfAccount https://github.lightning.force.com/lightning/r/Account/0010V00002KIWkaQAH/view
 
-    # Assert 
+    # Assert
     Assert-AreEqual -Expected "Oana Dinca" -Presented $result.OwnerName
 
 }

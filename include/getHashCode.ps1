@@ -13,11 +13,14 @@ function Get-HashCode {
         [string]$InputString
     )
 
-    # Generate MD5 hash
-    $md5 = [System.Security.Cryptography.MD5]::Create()
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputString)
-    $hashBytes = $md5.ComputeHash($bytes)
-    $hashString = [BitConverter]::ToString($hashBytes) -replace '-', ''
-    
-    return $hashString
+    process{
+        # Generate MD5 hash
+        $md5 = [System.Security.Cryptography.MD5]::Create()
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputString)
+        $hashBytes = $md5.ComputeHash($bytes)
+        $hashString = [BitConverter]::ToString($hashBytes) -replace '-', ''
+        
+        return $hashString
+    }
+
 }

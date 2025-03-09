@@ -4,7 +4,7 @@ function Test_GetSfOpportunity{
     Reset-InvokeCommandMock
     Mock_Database -ResetDatabase
     Mock_Config
-    
+
     # Mock Sf call
     $id = "0065c00001SFRbYAAX"
     $cacheFileName = "sfDataQuery-opportunity-$id-5106802FEB193611777BC7DA26122EF5.json"
@@ -19,7 +19,7 @@ function Test_GetSfOpportunity{
     $path = Get-Mock_DatabaseStore | Join-Path -ChildPath $cacheFileName
     Assert-ItemExist -Path $path
 
-    # Remove sf data 
+    # Remove sf data
     Reset-InvokeCommandMock
     Mock_Database
     Mock_Config

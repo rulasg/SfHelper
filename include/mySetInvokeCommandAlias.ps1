@@ -2,7 +2,7 @@
 # SET MY INVOKE COMMAND ALIAS
 #
 # Allows calling constitely InvokeHelper with the module tag
-# Need to define a variable called $MODULE_INVOKATION_TAG 
+# Need to define a variable called $MODULE_INVOKATION_TAG
 #
 # Sample:
 # $MODULE_INVOKATION_TAG = "SfHelperModule"
