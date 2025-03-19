@@ -25,10 +25,11 @@ function Edit-AttributeValueFromHTML{
         }
 
         # Add the new attribute
-        Add-Member -InputObject $ret -MemberType NoteProperty -Name $NewAttributeName -Value $value
+        $object.$NewAttributeName = $value
 
+        # Remove the original attribute if specified
         if ($RemoveOriginalAttribute) {
-            $Object.PsObject.Properties.Remove($AttributeName)
+             $Object.Remove($AttributeName)
         }
 
         return $Object
