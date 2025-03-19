@@ -5,13 +5,17 @@ function Get-SfDataQuery{
     param(
         [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
-        [Parameter(Mandatory)][string[]]$Attributes
+        [Parameter(Mandatory)][string[]]$Attributes,
+        [switch]$Force
     )
 
-    # Testcache first
-    $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
-    if(Test-Database -Key $cacheKey){
-        return Get-Database -Key $cacheKey
+    # avoid cache if Force is set
+    if(-Not $Force){
+        # Testcache first
+        $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
+        if(Test-Database -Key $cacheKey){
+            return Get-Database -Key $cacheKey
+        }
     }
 
     $params = @{
@@ -22,7 +26,7 @@ function Get-SfDataQuery{
 
     $result = Invoke-MyCommand -Command "sfDataQuery" -Param $params
 
-    $obj = $result | ConvertFrom-Json -Depth 10
+    $obj = $result | ConvertFrom-Json -Depth 10 -asHashtable
 
     if($obj.status -ne 0){
         throw "Status $($obj.status)"

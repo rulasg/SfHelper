@@ -27,7 +27,8 @@ function Get-SfAccount{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory,Position=0)][string]$SfUrl,
-        [string]$AdditionalAttributes
+        [string]$AdditionalAttributes,
+        [switch]$Force
     )
 
     # Extract Id from URL
@@ -70,7 +71,7 @@ function Get-SfAccount{
     }
 
     # Get object
-    $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes
+    $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes -Force:$Force
 
     # Transformations
     $ret = $ret | Edit-AttributeValueFromHTML `

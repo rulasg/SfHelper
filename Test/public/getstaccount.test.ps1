@@ -18,6 +18,7 @@ function Test_GetSfAccount{
     $result = Get-SfAccount -SfUrl $url
 
     # Assert with cache
+    Assert-AreEqual -Expected "Hashtable" -Presented $result.GetType().BaseType.Name
     Assert-AreEqual -Expected $id -Presented $result.Id
     $path = Get-Mock_DatabaseStore | Join-Path -ChildPath $filename
     Assert-ItemExist -Path $path
@@ -31,6 +32,7 @@ function Test_GetSfAccount{
     $result = Get-SfAccount -SfUrl $url
 
     # Assert
+    Assert-AreEqual -Expected "Hashtable" -Presented $result.GetType().BaseType.Name
     Assert-AreEqual -Expected "0010V00002KIWkaQAH" -Presented $result.Id
 }
 

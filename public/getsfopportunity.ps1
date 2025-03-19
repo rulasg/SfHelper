@@ -10,6 +10,13 @@ The `Get-SfOpportunity` function extracts the Salesforce Opportunity ID from the
 .PARAMETER SfUrl
 The Salesforce URL of the Opportunity object to query.
 
+.PARAMETER AdditionalAttributes
+Additional attributes to retrieve from the Opportunity object. This parameter accepts a comma-separated string of attribute names.
+
+.PARAMETER Force
+Forces the function to bypass any caching
+when retrieving data. If this switch is set, the function will always query Salesforce for the latest data, regardless of any cached results.
+
 .OUTPUTS
 The function returns a PowerShell object representing the queried Salesforce Opportunity data. If the query is unsuccessful or the object is not found, the function returns `$null`.
 
@@ -25,7 +32,8 @@ function Get-SfOpportunity{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory,Position=0)][string]$SfUrl,
-        [string]$AdditionalAttributes
+        [string]$AdditionalAttributes,
+        [switch]$Force
     )
 
     # Extract Id from URL
@@ -68,7 +76,7 @@ function Get-SfOpportunity{
     }
 
     # Get object
-    $ret = Get-SfDataQuery -Type opportunity -Id $Id -Attributes $attributes
+    $ret = Get-SfDataQuery -Type opportunity -Id $Id -Attributes $attributes -Force:$Force
 
     # Transformations
 
