@@ -16,4 +16,4 @@ function Install-SalesforceClient{
     $result = Invoke-MyCommand -Command SalesforceCliInstall
 
     return $result
-}
+} Export-ModuleMember -Function Install-SalesforceClient
