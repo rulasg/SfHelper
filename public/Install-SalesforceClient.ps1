@@ -1,12 +1,11 @@
 Set-MyInvokeCommandAlias -Alias GetUserEmail -Command "gh api user --jq '.email'"
 Set-MyInvokeCommandAlias -Alias GetNpmVersion -Command "npm --version"
-Set-MyInvokeCommandAlias -Alias SalesforceCliInstall -Command "npm install @salesforce/cli --global"
-Set-MyInvokeCommandAlias -Alias GetSalesforceCliVersion -Command "sf --version"
-Set-MyInvokeCommandAlias -Alias SalesforceCliSetConfig -Command "sf config set --global target-org {email} --json"
+Set-MyInvokeCommandAlias -Alias SfCliInstall -Command "npm install @salesforce/cli --global"
+Set-MyInvokeCommandAlias -Alias SfCliVersion -Command "sf --version"
+Set-MyInvokeCommandAlias -Alias SfCliDisplay -COmmand "sf org display --target-org={email} --json"
+Set-MyInvokeCommandAlias -Alias SfCliGetConfig -Command "sf config get target-org --json"
+Set-MyInvokeCommandAlias -Alias SfCliSetConfig -Command "sf config set --global target-org {email} --json"
 
-# Set-MyInvokeCommandAlias -Alias SalesforceCliLogin -Command "sf org login device"
-Set-MyInvokeCommandAlias -Alias SalesforceCliDisplay -COmmand "sf org display --json"
-Set-MyInvokeCommandAlias -Alias SalesforceCliGetConfig -Command "sf config get target-org --json"
 
 function Install-SalesforceClient{
     [CmdletBinding(SupportsShouldProcess)]
@@ -43,18 +42,18 @@ function Test-NpmSetup{
 } Export-ModuleMember -Function Test-NpmSetup
 
 function Invoke-SfInstall{
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param()
 
     # Check and Install for Salesforce CLI installed and install if not
-    $sfversion = Invoke-MyCommand -Command GetSalesforceCliVersion -ErrorAction SilentlyContinue
+    $sfversion = Invoke-MyCommand -Command SfCliVersion -ErrorAction SilentlyContinue
     if($null -eq $sfversion){
         if ($PSCmdlet.ShouldProcess("Target", "Operation")) {
             "Installing Salesforce CLI using npm..." | Write-MyHost
-            Invoke-MyCommand -Command SalesforceCliInstall
+            Invoke-MyCommand -Command SfCliInstall
         }
     }
-    $sfversion = Invoke-MyCommand -Command GetSalesforceCliVersion -ErrorAction SilentlyContinue
+    $sfversion = Invoke-MyCommand -Command SfCliVersion -ErrorAction SilentlyContinue
     if($null -eq $sfversion){
         "1. Salesforce Cli installation failed. Run ""npm install @salesforce/cli --global"" to install manually!!!" | Write-MyError
         return $false
@@ -66,15 +65,20 @@ function Invoke-SfInstall{
 
 function Test-SfLogin{
     [CmdletBinding(SupportsShouldProcess)]
-    param()
+    param(
+        [Parameter()][string]$Email
+    )
+
+    $email = Resolve-Email -Email $Email
 
     # Sf logging
-    $result = Invoke-MyCommand -Command SalesforceCliDisplay -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+    $result = Invoke-MyCommand -Command SfCliDisplay -Parameters @{ email = $email } -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
     $result | Write-MyVerbose
     $user = $result.result
     if($user.connectedStatus -eq "Connected"){
         "2. Salesforce CLI already connected with user $($user.username)" | Write-ToConsole -Color "Green"
         return $user.username
+    } else {
        "2. Run the following command to loging to Salesforce CLI: ""sf org login device""" | Write-ToConsole -Color "Magenta"
        return $null
     }
@@ -96,24 +100,24 @@ function Invoke-SfConfig{
 
     "Using email $Email to configure Salesforce CLI" | Write-MyVerbose
 
-    # $result = Invoke-MyCommand -Command SalesforceCliGetConfig -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
-    # $result | Write-MyVerbose
-    # $config = $result.result
-    # if($config.success){
-    #     "3. Salesforce CLI already configured with user $($config.value)" | Write-ToConsole -Color "Green"
-    #     return
-    # }
+    $result = Invoke-MyCommand -Command SfCliGetConfig -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+    $result | Write-MyVerbose
+    $config = $result.result
+    if($result.result.value -eq $Email){
+        "3. Salesforce CLI already configured with user $($config.value)" | Write-ToConsole -Color "Green"
+        return $true
+    }
 
     # Configure Salesforce CLI
     "Configuring Salesforce CLI ..." | Write-MyVerbose
 
-    $result = Invoke-MyCommand -Command SalesforceCliSetConfig -Parameters @{ email = $Email } | ConvertFrom-Json -ErrorAction SilentlyContinue
+    $result = Invoke-MyCommand -Command SfCliSetConfig -Parameters @{ email = $Email } | ConvertFrom-Json -Depth 10 -ErrorAction SilentlyContinue
     if($result.result.successes.value -eq $Email){
-        "3. Salesforce CLI configured with user $($Email) " | Write-ToConsole -Color "Green"
+        "3. Salesforce CLI configured with user $($Email) " | Write-MyHost
         return $Email
     } else {
-        "3. Salesforce CLI configuration failed with email $Email. " | Write-MyError
-        $result | ConvertTo-Json |  Write-MyVerbose
+        "3. Salesforce CLI configuration failed with email $Email. Logging to Salesforce Cli and try again. " | Write-MyError
+        $result | ConvertTo-Json -Depth 10 | Write-MyVerbose
         return
     }
 
