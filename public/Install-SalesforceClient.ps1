@@ -113,7 +113,7 @@ function Invoke-SfConfig{
 
     $result = Invoke-MyCommand -Command SfCliSetConfig -Parameters @{ email = $Email } | ConvertFrom-Json -Depth 10 -ErrorAction SilentlyContinue
     if($result.result.successes.value -eq $Email){
-        "3. Salesforce CLI configured with user $($Email) " | Write-MyHost
+        "3. Salesforce CLI configured with user $($Email) " | Write-ToConsole -Color "Green"
         return $Email
     } else {
         "3. Salesforce CLI configuration failed with email $Email. Logging to Salesforce Cli and try again. " | Write-MyError
