@@ -18,7 +18,7 @@ function Initialize-SfEnvironment{
     if(-not (Install-SfClient)){return}
 
     # 2. Test Sf Login
-    if(-not (Connect-SfAuthBase64)){return}
+    if(-not (Set-SfConnection)){return}
 
     # 3. Sf Config
     if(-not(Set-SfConfig -Email:$Email)){return}
@@ -60,6 +60,23 @@ function Install-SfClient{
         return $true
     }
 } Export-ModuleMember -Function Install-SfClient
+
+function Set-SfConnection{
+    [CmdletBinding()]
+    param()
+
+    $result = Connect-sfauthbase64
+
+    if($result){
+        "2. Salesforce CLI connected with user $($result)" | Write-ToConsole -Color "Green"
+        return $result
+    } else {
+        "2. Salesforce CLI not connected. Set environment variable SFDX_AUTH_URL. Use Get-SfAuthInfoBase64 on an Sf connected environment to get the value. Use ""sf org login device"" to connect to Sf." | Write-ToConsole -Color "Magenta"
+        return $null
+    }
+
+} Export-ModuleMember -Function Set-SfConnection
+
 function Test-SfConnect{
     [CmdletBinding(SupportsShouldProcess)]
     param(
