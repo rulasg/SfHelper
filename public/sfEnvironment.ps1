@@ -1,13 +1,11 @@
-Set-MyInvokeCommandAlias -Alias GetUserEmail -Command "gh api user --jq '.email'"
 Set-MyInvokeCommandAlias -Alias GetNpmVersion -Command "npm --version"
 Set-MyInvokeCommandAlias -Alias SfCliInstall -Command "npm install @salesforce/cli --global"
 Set-MyInvokeCommandAlias -Alias SfCliVersion -Command "sf --version"
-Set-MyInvokeCommandAlias -Alias SfCliDisplay -COmmand "sf org display --target-org={email} --json"
 Set-MyInvokeCommandAlias -Alias SfCliGetConfig -Command "sf config get target-org --json"
 Set-MyInvokeCommandAlias -Alias SfCliSetConfig -Command "sf config set --global target-org {email} --json"
 
 
-function Install-SalesforceClient{
+function Initialize-SfEnvironment{
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter()][string]$Email
@@ -17,15 +15,15 @@ function Install-SalesforceClient{
     if(-not (Test-NpmSetup)){return}
 
     # 1. Sf Install
-    if(-not (Invoke-SfInstall)){return}
+    if(-not (Install-SfClient)){return}
 
     # 2. Test Sf Login
-    if(-not (Test-SfLogin)){return}
+    if(-not (Set-SfConnection)){return}
 
     # 3. Sf Config
-    if(-not(Invoke-SfConfig -Email:$Email)){return}
+    if(-not(Set-SfConfig -Email:$Email)){return}
 
-} Export-ModuleMember -Function Install-SalesforceClient
+} Export-ModuleMember -Function Initialize-SfEnvironment
 
 function Test-NpmSetup{
     [CmdletBinding()]
@@ -41,7 +39,7 @@ function Test-NpmSetup{
     }
 } Export-ModuleMember -Function Test-NpmSetup
 
-function Invoke-SfInstall{
+function Install-SfClient{
     [CmdletBinding(SupportsShouldProcess)]
     param()
 
@@ -61,36 +59,48 @@ function Invoke-SfInstall{
         "1. Salesforce CLI installed. Version: $sfversion} " | Write-ToConsole -Color "Green"
         return $true
     }
-} Export-ModuleMember -Function Invoke-SfInstall
+} Export-ModuleMember -Function Install-SfClient
 
-function Test-SfLogin{
+function Set-SfConnection{
+    [CmdletBinding()]
+    param()
+
+    $result = Connect-sfauthbase64
+
+    if($result){
+        "2. Salesforce CLI connected with user $($result)" | Write-ToConsole -Color "Green"
+        return $result
+    } else {
+        "2. Salesforce CLI not connected. Set environment variable SFDX_AUTH_URL. Use Get-SfAuthInfoBase64 on an Sf connected environment to get the value. Use ""sf org login device"" to connect to Sf." | Write-ToConsole -Color "Magenta"
+        return $null
+    }
+
+} Export-ModuleMember -Function Set-SfConnection
+
+function Test-SfConnect{
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter()][string]$Email
     )
 
-    $email = Resolve-Email -Email $Email
-
-    # Sf logging
-    $result = Invoke-MyCommand -Command SfCliDisplay -Parameters @{ email = $email } -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
-    $result | Write-MyVerbose
-    $user = $result.result
-    if($user.connectedStatus -eq "Connected"){
-        "2. Salesforce CLI already connected with user $($user.username)" | Write-ToConsole -Color "Green"
-        return $user.username
-    } else {
-       "2. Run the following command to loging to Salesforce CLI: ""sf org login device""" | Write-ToConsole -Color "Magenta"
-       return $null
+    $userName = Get-SfAuthUser
+    
+    if(-not $userName){
+        Connect-SfAuthWeb
     }
 
-    # # Logging in to Salesforce CLI
-    # "Loging in to Salesforce CLI..." | Write-MyHost
-    # if ($PSCmdlet.ShouldProcess("Target", "Operation")) {
-    #     Invoke-MyCommand -Command SalesforceCliLogin
-    # }
-} Export-ModuleMember -Function Test-SfLogin
+    $userName = Get-SfAuthUser
 
-function Invoke-SfConfig{
+    if(-not $userName){
+        "2. Salesforce CLI not connected. Set environment variable SFDX_AUTH_URL. Use Get-SfAuthInfoBase64 on an Sf connected environment to get the value. Use ""sf org login device"" to connect to Sf." | Write-ToConsole -Color "Magenta"
+        return $null
+     } else {
+        "2. Salesforce CLI connected with user $userName." | Write-ToConsole -Color "Green"
+     }
+
+} Export-ModuleMember -Function Test-SfConnect
+
+function Set-SfConfig{
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter()][string]$Email
@@ -121,26 +131,4 @@ function Invoke-SfConfig{
         return
     }
 
-} Export-ModuleMember -Function Invoke-SfConfig
-
-function Resolve-Email{
-    [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [Parameter()][string]$Email
-    )
-
-    if(-not [string]::IsNullOrEmpty($Email)){
-        "Resolving email [$Email] from parameter" | Write-MyVerbose
-        return $Email
-    }
-
-    $Email = Invoke-MyCommand -Command GetUserEmail -ErrorAction SilentlyContinue
-    "Resolved email [$Email] from github" | Write-MyVerbose
-
-    if ($null -eq $Email){
-        throw "Unable to resolve user email. Please provide email as parameter or set proper gh cli credentials and user github profile email." | Write-MyError
-    }
-
-    return $Email
-
-} Export-ModuleMember -Function Resolve-Email
+} Export-ModuleMember -Function Set-SfConfig
