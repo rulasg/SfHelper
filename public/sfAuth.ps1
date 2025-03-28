@@ -3,9 +3,9 @@ Set-MyInvokeCommandAlias -Alias sforglistauth -Command "sf org list auth --json"
 Set-MyInvokeCommandAlias -Alias sforgloginweb -Command "sf org login web --instance-url {instanceUrl} --json"
 Set-MyInvokeCommandAlias -Alias sforglogout -Command "sf org logout --all --no-prompt --json"
 Set-MyInvokeCommandAlias -Alias sforgdisplayuser -Command "sf org display --target-org {email} --verbose --json"
-Set-MyInvokeCommandAlias -Alias sfLoginWithSFDX -Command " '{sfdxAuthUrl}'| sf org login sfdx-url --sfdx-url-stdin"
-Set-MyInvokeCommandAlias -Alias ghSetSecret -Command "gh secret set {secretname} --body '{secretvalue}'"
-Set-MyInvokeCommandAlias -Alias ghSetSecretUser -Command "gh secret set {secretname} -u --body '{secretvalue}'"
+Set-MyInvokeCommandAlias -Alias sfLoginWithSFDX -Command "'{sfdxAuthUrl}'| sf org login sfdx-url --sfdx-url-stdin --json"
+Set-MyInvokeCommandAlias -Alias ghSetSecret     -Command "gh secret set {secretname} --body '{secretvalue}'"
+Set-MyInvokeCommandAlias -Alias ghSetSecretUser -Command "gh secret set {secretname} --body '{secretvalue} -u'"
 
 <#
 .SYNOPSIS
@@ -104,10 +104,13 @@ function Save-SfAuthInfoToSecret{
     [CmdletBinding()]
     param(
         # secret name
-        [Parameter()][string]$SecretName = "SFDX_AUTH_URL"
+        [Parameter()][string]$SecretName = "SFDX_AUTH_URL",
+        [Parameter()][switch]$User
     )
 
     $base64 = Get-SfAuthInfoBase64
+
+    $alias = $user ? "ghSetSecretUser" : "ghSetSecret"
 
     if ($base64){
         $result = Invoke-MyCommand -Command ghSetSecret -Parameter @{ secretname = $SecretName; secretvalue = $base64 }
@@ -117,24 +120,7 @@ function Save-SfAuthInfoToSecret{
     return $false
 } Export-ModuleMember -Function Save-SfAuthInfoToSecret
 
-function Save-SfAuthInfoToUserSecret{
-    [CmdletBinding()]
-    param(
-        # secret name
-        [Parameter()][string]$SecretName = "SFDX_AUTH_URL"
-    )
-
-    $base64 = Get-SfAuthInfoBase64
-
-    if ($base64){
-        $result = Invoke-MyCommand -Command ghSetSecretUser -Parameter @{ secretname = $SecretName; secretvalue = $base64 }
-        return $result
-    }
-
-    return $false
-} Export-ModuleMember -Function Save-SfAuthInfoToUserSecret
-
-function Connect-SfAuthWithAuthBase64 {
+function Connect-SfAuthBase64 {
     [CmdletBinding()]
     param (
         [Parameter()] [string]$Base64 = $env:SFDX_AUTH_URL
@@ -145,14 +131,26 @@ function Connect-SfAuthWithAuthBase64 {
         throw "Base64 string is null or empty."
     }
 
-    $sfdxAuthUrl = $Base64 | base64 --decode | ConvertFrom-Json | Select-Object -ExpandProperty result | Select-Object -ExpandProperty sfdxAuthUrl
+    $result = $Base64 | ConvertFrom-Base64 | ConvertFrom-Json
+    $sfdxAuthUrl = $result.result.sfdxAuthUrl
 
+    if([string]::IsNullOrWhiteSpace($sfdxAuthUrl)){
+        throw "sfdxAuthUrl is null or empty."
+    }
     
-    $result = Invoke-MyCommand -Command sfLoginWithSFDX -Parameter @{sfdxAuthUrl = $sfdxAuthUrl } -ErrorAction SilentlyContinue
+    $json = Invoke-MyCommand -Command sfLoginWithSFDX -Parameter @{sfdxAuthUrl = $sfdxAuthUrl } -ErrorAction SilentlyContinue
 
-    return $result
+    $json | Write-MyVerbose
 
-} Export-ModuleMember -Function Connect-SfAuthWithAuthBase64
+    $result = $json | ConvertFrom-Json -Depth 10 -AsHashtable
+
+    if($result.status -ne 0){
+        throw "Status $($result.status)"
+    }
+
+    return $result.result.username
+
+} Export-ModuleMember -Function Connect-SfAuthBase64
 
 function Connect-SfAuthWeb{
     [CmdletBinding()]
@@ -197,29 +195,29 @@ function Disconnect-SfAuth{
         throw "Status $($result.status)"
     }
 
-
-
-
-
 } Export-ModuleMember -Function Disconnect-SfAuth
 
 function ConvertTo-Base64 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory,ValueFromPipeline, Position=0)][string[]]$Text,
-        [Parameter()][switch]$Decode
+        [Parameter(Mandatory,ValueFromPipeline, Position=0)][string[]]$Text
     )
 
     process{
+        # Encode the string to base64
+        $ret = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Text))
+        return $ret
+    }
+}
 
-        if ($Decode) {
-            # Decode the base64 string
-            $ret = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($Text))
-        } else {
-            # Encode the string to base64
-            $ret = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Text))
-        }
+function ConvertFrom-Base64 {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory,ValueFromPipeline, Position=0)][string[]]$Text
+    )
 
+    process{
+        $ret = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($Text))
         return $ret
     }
 }
