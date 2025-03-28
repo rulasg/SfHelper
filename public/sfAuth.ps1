@@ -5,7 +5,9 @@ Set-MyInvokeCommandAlias -Alias sforglogout -Command "sf org logout --all --no-p
 Set-MyInvokeCommandAlias -Alias sforgdisplayuser -Command "sf org display --target-org {email} --verbose --json"
 Set-MyInvokeCommandAlias -Alias sfLoginWithSFDX -Command "'{sfdxAuthUrl}'| sf org login sfdx-url --sfdx-url-stdin --json"
 Set-MyInvokeCommandAlias -Alias ghSetSecret     -Command "gh secret set {secretname} --body '{secretvalue}'"
-Set-MyInvokeCommandAlias -Alias ghSetSecretUser -Command "gh secret set {secretname} --body '{secretvalue} -u'"
+Set-MyInvokeCommandAlias -Alias ghSetSecretUser -Command "gh secret set {secretname} --body '{secretvalue}' -u -r '{repo}'"
+
+Set-MyInvokeCommandAlias -Alias gitgetreponame     -Command "git remote get-url origin"
 
 <#
 .SYNOPSIS
@@ -110,10 +112,17 @@ function Save-SfAuthInfoToSecret{
 
     $base64 = Get-SfAuthInfoBase64
 
-    $alias = $user ? "ghSetSecretUser" : "ghSetSecret"
+    $params = @{ secretname = $SecretName; secretvalue = $base64 }
+
+    if ($User) {
+        $alias = "ghSetSecretUser"
+        $params.repo = Get-RepoName
+    } else {
+        $alias = "ghSetSecret"
+    }
 
     if ($base64){
-        $result = Invoke-MyCommand -Command ghSetSecret -Parameter @{ secretname = $SecretName; secretvalue = $base64 }
+        $result = Invoke-MyCommand -Command $alias -Parameter $params -ErrorAction SilentlyContinue
         return $result
     }
 
@@ -221,3 +230,17 @@ function ConvertFrom-Base64 {
         return $ret
     }
 }
+
+function Get-RepoName{
+    [CmdletBinding()]
+    param()
+
+    $url = Invoke-MyCommand -Command gitgetreponame
+
+    $uri = [System.Uri]$url
+    $owner = $uri.Segments[1].TrimEnd('/')
+    $reponame = $uri.Segments[2].TrimEnd('.git')
+    $result = "$owner/$reponame"
+
+    return $result
+} Export-ModuleMember -Function Get-RepoName

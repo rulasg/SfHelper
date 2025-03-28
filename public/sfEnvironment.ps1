@@ -18,7 +18,7 @@ function Initialize-SfEnvironment{
     if(-not (Install-SfClient)){return}
 
     # 2. Test Sf Login
-    if(-not (Test-SfConnect)){return}
+    if(-not (Connect-SfAuthBase64)){return}
 
     # 3. Sf Config
     if(-not(Set-SfConfig -Email:$Email)){return}
@@ -60,7 +60,6 @@ function Install-SfClient{
         return $true
     }
 } Export-ModuleMember -Function Install-SfClient
-
 function Test-SfConnect{
     [CmdletBinding(SupportsShouldProcess)]
     param(
