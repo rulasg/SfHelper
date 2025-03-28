@@ -1,0 +1,16 @@
+{
+  "status": 0,
+  "result": {
+    "accessToken": "***",
+    "instanceUrl": "https://contoso.my.salesforce.com",
+    "orgId": "00Ddxxx0000hHE0EAM",
+    "username": "me@contoso.com",
+    "loginUrl": "https://contoso.my.salesforce.com/",
+    "refreshToken": "***",
+    "clientId": "PlatformCLI",
+    "isDevHub": false,
+    "instanceApiVersion": "63.0",
+    "instanceApiVersionLastRetrieved": "3/28/2025, 12:18:01 PM"
+  },
+  "warnings": []
+}
