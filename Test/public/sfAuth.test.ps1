@@ -2,11 +2,11 @@ function Test_SaveSfAuthInfoToSecret{
 
     Reset-InvokeCommandMock
     $filename = "sforgdisplayVerbose.json"
-    $base64 = Get-MockFileContent -filename $filename | base64
+    $base64 = Get-MockFileContent -filename $filename | ConvertTo-Base64
     MockCallToString -Command "gh api user --jq '.email'" -OutString "me@contoso.com"
     MockCall -Command "sf org display --target-org me@contoso.com --verbose --json" -filename $filename
 
-    MockCallToNull -Command "gh secret set SFDX_AUTH_URL --body '$base64'" 
+    MockCallToNull -Command "gh secret set SFDX_AUTH_URL --body '$base64'"
 
     $result = Save-SfAuthInfoToSecret
 
@@ -20,7 +20,7 @@ function Test_SaveSfAuthInfoToSecret{
 
     Reset-InvokeCommandMock
     $filename = "sforgdisplayVerbose.json"
-    $base64 = Get-MockFileContent -filename $filename | base64
+    $base64 = Get-MockFileContent -filename $filename | ConvertTo-Base64
     MockCallToString -Command "gh api user --jq '.email'" -OutString "me@contoso.com"
     MockCall -Command "sf org display --target-org me@contoso.com --verbose --json" -filename $filename
     MockCallToNull -Command "gh secret set SFDX_AUTH_URL --body '$base64' -u -r 'ownername/reponame'"
@@ -54,7 +54,7 @@ function Test_ConnectSfAuthBase64{
     Reset-InvokeCommandMock
 
     $filename = "sforgdisplayVerbose.json"
-    $SDX_AUTH_URL = Get-MockFileContent -filename $filename | base64
+    $SDX_AUTH_URL = Get-MockFileContent -filename $filename | ConvertTo-Base64 | Out-String
 
     $command = "'force://PlatformCLI::xxx@contoso.my.salesforce.com'| sf org login sfdx-url --sfdx-url-stdin --json"
     MockCall -Command $command -filename $filename
