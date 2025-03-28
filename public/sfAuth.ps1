@@ -85,7 +85,7 @@ function Get-SfAuthInfoUser {
     # Create the authentication file content
     $json = Invoke-MyCommand -Command sforgdisplayuser -Parameter @{ email = $Email} -ErrorAction SilentlyContinue
 
-    $ret = $json | Out-String
+    $ret = $json
 
     return $ret
 } Export-ModuleMember -Function Get-SfAuthInfoUser
