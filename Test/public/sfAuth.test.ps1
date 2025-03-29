@@ -20,7 +20,7 @@ function Test_SaveSfAuthInfoToSecret{
 
     Reset-InvokeCommandMock
     $filename = "sforgdisplayVerbose.json"
-    $base64 = Get-MockFileContent -filename $filename | ConvertTo-Base64
+    $base64 = Get-MockFileContent -filename $filename | out-string | ConvertTo-Base64
     MockCallToString -Command "gh api user --jq '.email'" -OutString "me@contoso.com"
     MockCall -Command "sf org display --target-org me@contoso.com --verbose --json" -filename $filename
     MockCallToNull -Command "gh secret set SFDX_AUTH_URL --body '$base64' -u -r 'ownername/reponame'"

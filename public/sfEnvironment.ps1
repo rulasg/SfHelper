@@ -7,9 +7,7 @@ Set-MyInvokeCommandAlias -Alias SfCliSetConfig -Command "sf config set --global 
 
 function Initialize-SfEnvironment{
     [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [Parameter()][string]$Email
-    )
+    param()
 
     # 0. NPM setup check
     if(-not (Test-NpmSetup)){return}
@@ -18,10 +16,13 @@ function Initialize-SfEnvironment{
     if(-not (Install-SfClient)){return}
 
     # 2. Test Sf Login
-    if(-not (Set-SfConnection)){return}
+    $email = Initialize-SfConnection
+    if(-not $email){return}
 
     # 3. Sf Config
-    if(-not(Set-SfConfig -Email:$Email)){return}
+    if(-not(Set-SfConfig -Email:$email)){return}
+
+    return $email
 
 } Export-ModuleMember -Function Initialize-SfEnvironment
 
@@ -61,24 +62,44 @@ function Install-SfClient{
     }
 } Export-ModuleMember -Function Install-SfClient
 
-function Set-SfConnection{
+function Initialize-SfConnection{
     [CmdletBinding()]
     param()
 
-    $result = Connect-sfauthbase64
-
-    if($result){
-        "2. Salesforce CLI connected with user $($result)" | Write-ToConsole -Color "Green"
-        return $result
-    } else {
-        "2. Salesforce CLI not connected. Set environment variable SFDX_AUTH_URL. Use Get-SfAuthInfoBase64 on an Sf connected environment to get the value. Use ""sf org login device"" to connect to Sf." | Write-ToConsole -Color "Magenta"
-        return $null
+    # Check already connected
+    $userName = Get-SfAuthUser
+    if($userName){
+        "2. Salesforce CLI already connected with user $($userName)" | Write-ToConsole -Color "Green"
+        return $userName
     }
 
-} Export-ModuleMember -Function Set-SfConnection
+    # Connect using base64
+    $userName = Connect-SfAuthBase64 -ErrorAction SilentlyContinue
+    if($userName){
+        "2. Salesforce Cli connected usin base64 with user $($userName)" | Write-ToConsole -Color "Green"
+        return $userName
+    }
+    # Connect using web
+    $userName = Connect-SfAuthWeb -ErrorAction SilentlyContinue
+    if($userName){
+        "2. Salesforce CLI connected using web with user $($userName)" | Write-ToConsole -Color "Green"
+        return $userName
+    }
+
+    # Not Connected
+    $message = @"
+2. Salesforce CLI not connected. Please connect or set environment to allow connection.
+    1. Set environment variable SFDX_AUTH_URL. Use Get-SfAuthInfoBase64 on an already Sf connected environment to get the value.
+    2. Login manually through the web. Use Connect-SfAuthWeb or Sf command 'sf org login web'
+    3. Login manually through the device. Use Sf command 'sf org login device'
+"@
+
+    $message | Write-ToConsole -Color "Magenta"
+
+} Export-ModuleMember -Function Initialize-SfConnection
 
 function Test-SfConnect{
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param(
         [Parameter()][string]$Email
     )

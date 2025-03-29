@@ -85,7 +85,7 @@ function Get-SfAuthInfoUser {
     # Create the authentication file content
     $json = Invoke-MyCommand -Command sforgdisplayuser -Parameter @{ email = $Email} -ErrorAction SilentlyContinue
 
-    $ret = $json
+    $ret = $json | Out-String
 
     return $ret
 } Export-ModuleMember -Function Get-SfAuthInfoUser
@@ -98,6 +98,8 @@ function Get-SfAuthInfoBase64{
 
     $base64 = $text | ConvertTo-Base64
     #-ErrorAction SilentlyContinue
+
+    "Generated base 64 with length $($base64.Length)" | Write-MyVerbose
 
     return $base64
 } Export-ModuleMember -Function Get-SfAuthInfoBase64
@@ -137,14 +139,16 @@ function Connect-SfAuthBase64 {
     # sf org login sfdx-url --sfdx-url-file authFile.json
 
     if([string]::IsNullOrWhiteSpace($Base64)){
-        throw "Base64 string is null or empty."
+        "Base64 string is null or empty." | Write-MyVerbose
+        return $null
     }
 
     $result = $Base64 | ConvertFrom-Base64 | ConvertFrom-Json
     $sfdxAuthUrl = $result.result.sfdxAuthUrl
 
     if([string]::IsNullOrWhiteSpace($sfdxAuthUrl)){
-        throw "sfdxAuthUrl is null or empty."
+        "sfdxAuthUrl is null or empty." | Write-MyVerbose
+        return $null
     }
     
     $json = Invoke-MyCommand -Command sfLoginWithSFDX -Parameter @{sfdxAuthUrl = $sfdxAuthUrl } -ErrorAction SilentlyContinue
@@ -154,7 +158,8 @@ function Connect-SfAuthBase64 {
     $result = $json | ConvertFrom-Json -Depth 10 -AsHashtable
 
     if($result.status -ne 0){
-        throw "Status $($result.status)"
+        "Status call to sfLoginWithSFDX is not 0 [$($result.status)]" | Write-MyVerbose
+        return $null
     }
 
     return $result.result.username
@@ -167,8 +172,6 @@ function Connect-SfAuthWeb{
         [Parameter()][string]$InstanceUrl = "https://github.my.salesforce.com"
     )
 
-    $email = Resolve-Email
-
     $json = Invoke-MyCommand -Command sforgloginweb -Parameters @{ instanceUrl = $InstanceUrl } -ErrorAction SilentlyContinue 
 
     $json | Write-MyVerbose
@@ -176,7 +179,7 @@ function Connect-SfAuthWeb{
     $result = $json | ConvertFrom-Json -Depth 10 -AsHashtable
 
     if($result.status -ne 0){
-        "Login failed. Login invocation result: $json" | Write-MyError
+        "Login failed. Login invocation result: $json" | Write-MyVerbose
         return $null
     }
 
