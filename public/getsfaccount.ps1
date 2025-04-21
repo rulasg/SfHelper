@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
 Retrieves Salesforce Account data based on the specified Salesforce URL.
@@ -8,6 +7,16 @@ The `Get-SfAccount` function extracts the Salesforce Account ID from the provide
 
 .PARAMETER SfUrl
 The Salesforce URL of the Account object to query.
+
+.PARAMETER AdditionalAttributes
+Additional attributes to retrieve from the Salesforce Account object. This parameter accepts a comma-separated string of attribute names.
+If not specified, the function retrieves a default set of attributes.
+
+.PARAMETER Force
+A switch parameter that forces the function to retrieve the data even if it is already cached.
+
+.PARAMETER Id
+The Salesforce ID of the Account object to query. If specified, the function will use this ID instead of extracting it from the URL.
 
 .OUTPUTS
 The function returns a PowerShell object representing the queried Salesforce Account data. If the query is unsuccessful or the object is not found, the function returns `$null`.
@@ -19,6 +28,11 @@ PS> $result
 
 This example retrieves the specified attributes for the Salesforce Account object with the ID extracted from the provided URL.
 
+.EXAMPLE
+PS> Get-SfAccount -Id 0013o00002OHreEAAT
+
+This example retrieves the specified attributes for the Salesforce Account object with the specified ID.
+
 .NOTES
 The function uses the `Get-SfDataQuery` function to perform the query and the `Get-OwnerNameFromHtml` function to clean up the `Account_Owner__c` field.
 
@@ -26,17 +40,21 @@ The function uses the `Get-SfDataQuery` function to perform the query and the `G
 function Get-SfAccount{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)][string]$SfUrl,
+        [Parameter(Position=0)][string]$SfUrl,
         [string]$AdditionalAttributes,
-        [switch]$Force
+        [switch]$Force,
+        [Parameter()][string]$Id
     )
 
-    # Extract Id from URL
-    $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
-    $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
-
-    if ($type -ne "Account") {
-        throw "Invalid Salesforce Object URL $SfUrl"
+    if ([string]::IsNullOrWhiteSpace($Id)){
+        
+        # Extract Id from URL
+        $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+        $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
+        
+        if ($type -ne "Account") {
+            throw "Invalid Salesforce Object URL $SfUrl"
+        }
     }
 
     $attributes = @(

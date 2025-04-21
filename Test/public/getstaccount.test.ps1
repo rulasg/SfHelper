@@ -36,6 +36,23 @@ function Test_GetSfAccount{
     Assert-AreEqual -Expected "0010V00002KIWkaQAH" -Presented $result.Id
 }
 
+function Test_GetSfAccount_Id{
+    Reset-InvokeCommandMock
+
+    # Mocks
+    Mock_Database -ResetDatabase
+    Mock_Config
+    Mock_SfDataQuery_Account_0010V00002KIWkaQAH
+
+    # Act with out cache
+    $result = Get-SfAccount -Id 0010V00002KIWkaQAH
+
+    # Assert
+    Assert-AreEqual -Expected "Hashtable" -Presented $result.GetType().BaseType.Name
+    Assert-AreEqual -Expected "0010V00002KIWkaQAH" -Presented $result.Id
+
+}
+
 function Test_GetSfAccount_Transformations{
     Reset-InvokeCommandMock
 

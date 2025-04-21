@@ -1,5 +1,3 @@
-
-
 <#
 .SYNOPSIS
 Retrieves Salesforce Opportunity data based on the specified Salesforce URL.
@@ -31,17 +29,20 @@ This example retrieves the specified attributes for the Salesforce Opportunity o
 function Get-SfOpportunity{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)][string]$SfUrl,
+        [Parameter(Position=0)][string]$SfUrl,
         [string]$AdditionalAttributes,
-        [switch]$Force
+        [switch]$Force,
+        [Parameter()][string]$Id
     )
 
-    # Extract Id from URL
-    $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
-    $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
-
-    if ($type -ne "Opportunity") {
-        throw "Invalid Salesforce Object URL $SfUrl"
+    if ([string]::IsNullOrWhiteSpace($Id)){
+        # Extract Id from URL
+        $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
+        $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
+        
+        if ($type -ne "Opportunity") {
+            throw "Invalid Salesforce Object URL $SfUrl"
+        }
     }
 
     $attributes = @(

@@ -1,4 +1,3 @@
-
 function Test_GetSfOpportunity{
 
     Reset-InvokeCommandMock
@@ -44,6 +43,20 @@ function  Test_GetSfOpportunity_Live{
     Assert-NotImplemented
 }
 
+function Test_GetSfOpportunity_Id{
+    Reset-InvokeCommandMock
+
+    # Mocks
+    Mock_Database -ResetDatabase
+    Mock_Config
+    Mock_SfDataQuery_Opportunity_0065c00001SFRbYAAX
+
+    # Act with out cache
+    $result = Get-SfOpportunity -Id 0065c00001SFRbYAAX
+
+    # Assert
+    Assert-AreEqual -Expected "0065c00001SFRbYAAX" -Presented $result.Id
+}
 
 function Mock_SfDataQuery_Opportunity_0065c00001SFRbYAAX{
     [CmdletBinding()]

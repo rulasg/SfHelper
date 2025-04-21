@@ -3,8 +3,8 @@
 
 ## Sample commands
 
-### Get-SfAccount
+### Get-SfUser
 
 ```powershell
-Get-SfAccount https://github.lightning.force.com/lightning/r/Account/0013o00002ZKSfaAAH/view
+Get-SfUser 0055c000009T2o8AAC
 ```
