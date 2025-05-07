@@ -42,7 +42,18 @@ function Test-NpmSetup{
 
 function Install-SfClient{
     [CmdletBinding(SupportsShouldProcess)]
-    param()
+    param(
+        [Parameter()][switch]$Force
+    )
+
+    # Run installaltion if Force is set
+    # This command allows to update the Salesforce CLI if already installed
+    if($Force){
+        "Installing Salesforce CLI using npm..." | Write-MyHost
+        Invoke-MyCommand -Command SfCliInstall
+    }
+
+    # Check if npm is installed
 
     # Check and Install for Salesforce CLI installed and install if not
     $sfversion = Invoke-MyCommand -Command SfCliVersion -ErrorAction SilentlyContinue
