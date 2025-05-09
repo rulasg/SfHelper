@@ -8,11 +8,13 @@ function Get-SfDataQuery{
         [Parameter(Mandatory)][string[]]$Attributes,
         [switch]$Force
     )
+    
+    # Get Cache Key to read or write the output
+    $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
 
     # avoid cache if Force is set
     if(-Not $Force){
         # Testcache first
-        $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
         if(Test-Database -Key $cacheKey){
             return Get-Database -Key $cacheKey
         }
