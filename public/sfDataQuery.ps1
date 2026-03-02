@@ -1,9 +1,9 @@
-Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'sf data query --query "SELECT {attributes} FROM {type} WHERE Id=''{id}''" -r=json'
+Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'Invoke-SfDataQuery -Type {type} -Id {id} -Attributes "{attributes}"'
 
 function Get-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity")][string]$Type,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
         [Parameter(Mandatory)][string[]]$Attributes,
         [switch]$Force
@@ -26,7 +26,7 @@ function Get-SfDataQuery{
         attributes = $attributes -join ","
     }
 
-    $result = Invoke-MyCommand -Command "sfDataQuery" -Param $params
+    $result = Invoke-MyCommand -Command "sfDataQuery" -Parameters $params
 
     $obj = $result | ConvertFrom-Json -Depth 10 -asHashtable
 
@@ -73,5 +73,29 @@ function getcacheKey{
     return $cacheKey
 }
 
+function Invoke-SfDataQuery{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$Type,
+        [Parameter(Mandatory)][string]$Id,
+        [Parameter(Mandatory)][string]$Attributes
+
+    )
+
+    $command = 'sf data query --query "SELECT {attributes} FROM {type} WHERE {idName}=''{id}''" -r=json'
+    $command = $command -replace "{attributes}", $Attributes
+    $command = $command -replace "{type}", $Type
+    $command = $command -replace "{idName}", $($Type -eq "AccountTeamMember" ? "AccountId" : "Id")
+    $command = $command -replace "{id}", $Id
+
+    Write-MyDebug " >> $command" -section "SfDataQuery"
+
+    $response = Invoke-Expression $command
+
+    Write-MyDebug "Response" -section "SfDataQuery" -Object $response
+
+    return $response
+
+} Export-ModuleMember -Function Invoke-SfDataQuery
 
 
