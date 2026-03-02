@@ -44,7 +44,7 @@ function Open-SfConfig{
 function Add-SfConfigAttribute{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)][ValidateSet("Account", "User", "Opportunity")][string]$objectType,
+        [Parameter(Mandatory,Position=0)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$objectType,
 
         [Parameter(Mandatory, ValueFromPipeline, Position = 1)][string]$Attribute
 
