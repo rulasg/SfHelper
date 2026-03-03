@@ -59,3 +59,85 @@ function Get-SfUser{
 
     return $ret
 } Export-ModuleMember -Function Get-SfUser
+
+function Get-SfUserByHandle{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory,Position=0)]
+        [string]$Handle,
+        [string]$AdditionalAttributes,
+        [switch]$Force
+    )
+
+    $attributes = @(
+        "Id",
+        "Name",
+        "GitHub_Username__c",
+        "Email",
+        "Department",
+        "ManagerId",
+        "Username",
+        "Title"
+    )
+
+    if ($AdditionalAttributes) {
+        $additionalAttributesArray = $AdditionalAttributes -split ","
+        $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
+
+    $params = @{
+        Name = $Handle
+        From = "User"
+        Where = "GitHub_Username__c='$Handle'"
+        Attributes = ($attributes -join ",")
+    }
+
+    # Get object
+    $ret = Get-SfDataQueryWithWhere @params
+
+    # remove attributes
+    # $ret.PsObject.Properties.Remove("attributes")
+
+    return $ret
+} Export-ModuleMember -Function Get-SfUserByHandle
+
+function Get-SfUserByName{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory,Position=0)]
+        [string]$Name,
+        [string]$AdditionalAttributes,
+        [switch]$Force
+    )
+
+    $attributes = @(
+        "Id",
+        "Name",
+        "GitHub_Username__c",
+        "Email",
+        "Department",
+        "ManagerId",
+        "Username",
+        "Title"
+    )
+
+    if ($AdditionalAttributes) {
+        $additionalAttributesArray = $AdditionalAttributes -split ","
+        $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
+
+    $params = @{
+        Name = $Name
+        From = "User"
+        Where = "Name='$Name'"
+        Attributes = ($attributes -join ",")
+    }
+
+    # Get object
+    $ret = Get-SfDataQueryWithWhere @params
+
+    # remove attributes
+    # $ret.PsObject.Properties.Remove("attributes")
+
+    return $ret
+} Export-ModuleMember -Function Get-SfUserByName
