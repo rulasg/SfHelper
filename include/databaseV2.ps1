@@ -44,6 +44,9 @@ function GetDatabaseRootPath {
     param()
 
     $databaseRoot = $DATABASE_ROOT
+
+    Write-MyDebug "Database root path: $databaseRoot" -section "Database"
+
     return $databaseRoot
 }
 
@@ -77,6 +80,8 @@ function Get-Database{
 
     $path =  GetDatabaseFile $Key
 
+    Write-MyDebug "$Key cache loaded from $path" -section "Database"
+
     $ret = Get-Content $path | ConvertFrom-Json -Depth 10 -AsHashtable
 
     return $ret
@@ -88,6 +93,9 @@ function Reset-Database{
         [Parameter(Position = 0)][string]$Key
     )
     $path =  GetDatabaseFile -Key $Key
+
+    Write-MyDebug "$Key cache reset at $path" -section "Database"
+
     Remove-Item -Path $path -Force -ErrorAction SilentlyContinue
     return
 }
@@ -100,6 +108,8 @@ function Save-Database{
     )
 
     $path = GetDatabaseFile -Key $Key
+
+    Write-MyDebug "$Key cache saved at $path" -section "Database"
 
     $Database | ConvertTo-Json -Depth 10 | Set-Content $path
 }
@@ -114,11 +124,13 @@ function Test-Database{
 
     # Key file not exists
     if(-Not (Test-Path $path)){
+        Write-MyDebug "$Key cache NOT found at $path" -section "Database"
         return $false
     }
 
     # TODO: Return $false if cache has expired
 
+    Write-MyDebug "$Key cache found at $path" -section "Database"
     return $true
 }
 
