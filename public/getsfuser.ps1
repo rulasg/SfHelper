@@ -104,40 +104,46 @@ function Get-SfUserByHandle{
 function Get-SfUserByName{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory,Position=0)]
-        [string]$Name,
+        [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline,Position=0)][string]$Name,
         [string]$AdditionalAttributes,
         [switch]$Force
     )
 
-    $attributes = @(
-        "Id",
-        "Name",
-        "GitHub_Username__c",
-        "Email",
-        "Department",
-        "ManagerId",
-        "Username",
-        "Title"
-    )
+    process {
 
-    if ($AdditionalAttributes) {
-        $additionalAttributesArray = $AdditionalAttributes -split ","
-        $attributes += $additionalAttributesArray | Select-Object -Unique
-    }
-
-    $params = @{
-        Name = $Name
-        From = "User"
-        Where = "Name='$Name'"
-        Attributes = ($attributes -join ",")
-    }
-
-    # Get object
-    $ret = Get-SfDataQueryWithWhere @params
-
-    # remove attributes
-    # $ret.PsObject.Properties.Remove("attributes")
-
-    return $ret
+        if([string]::IsNullOrWhiteSpace($Name)){
+            return
+        }
+        
+        $attributes = @(
+            "Id",
+            "Name",
+            "GitHub_Username__c",
+            "Email",
+            "Department",
+            "ManagerId",
+            "Username",
+            "Title"
+            )
+            
+            if ($AdditionalAttributes) {
+                $additionalAttributesArray = $AdditionalAttributes -split ","
+                $attributes += $additionalAttributesArray | Select-Object -Unique
+            }
+            
+            $params = @{
+                Name = $Name
+                From = "User"
+                Where = "Name='$Name'"
+                Attributes = ($attributes -join ",")
+            }
+            
+            # Get object
+            $ret = Get-SfDataQueryWithWhere @params
+            
+            # remove attributes
+            # $ret.PsObject.Properties.Remove("attributes")
+            
+            return $ret
+        }
 } Export-ModuleMember -Function Get-SfUserByName
