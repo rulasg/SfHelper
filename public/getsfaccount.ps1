@@ -46,16 +46,20 @@ function Get-SfAccount{
         [Parameter()][string]$Id
     )
 
+    $type = "Account"
+
     if ([string]::IsNullOrWhiteSpace($Id)){
         
         # Extract Id from URL
         $Id = Get-SfObjectIdFromUrl -SfUrl $SfUrl
         $type = Get-SfObjectTypeFromUrl -SfUrl $SfUrl
         
-        if ($type -ne "Account") {
+        if ($type -ne $type) {
             throw "Invalid Salesforce Object URL $SfUrl"
         }
     }
+
+    "[GetSfAccoount] $Id" | Write-MyDebug -section "Get-SfAccount"
 
     $attributes = @(
         "Id",
@@ -89,7 +93,7 @@ function Get-SfAccount{
     }
 
     # Get object
-    $ret = Get-SfDataQuery -Type Account -Id $Id -Attributes $attributes -Force:$Force
+    $ret = Get-SfDataQuery -Type $type -Id $Id -Attributes $attributes -Force:$Force
 
     # Transformations
     $ret = $ret | Edit-AttributeValueFromHTML `
