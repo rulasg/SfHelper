@@ -1,5 +1,5 @@
 Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'Invoke-SfDataQuery -Type {type} -Id {id} -Attributes "{attributes}"'
-Set-MyInvokeCommandAlias -Alias "sfDataQueryWithWhere" -Command  'Invoke-SfDataQuery -From {from} -Where "{where}" -Attributes "{attributes}"'
+Set-MyInvokeCommandAlias -Alias "sfDataQueryWithWhere" -Command  'Invoke-SfDataQueryWithWhere -From {from} -Where "{where}" -Attributes "{attributes}"'
 
 function Get-SfDataQuery{
     [CmdletBinding()]
@@ -13,12 +13,19 @@ function Get-SfDataQuery{
     # Get Cache Key to read or write the output
     $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
 
+    "[Get-SfDataQuery] $cacheKey" | Write-MyDebug -section "SfDataQuery"
+
     # avoid cache if Force is set
     if(-Not $Force){
         # Testcache first
         if(Test-Database -Key $cacheKey){
+            "[Get-SfDataQuery] Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
             return Get-Database -Key $cacheKey
+        } else{
+            "[Get-SfDataQuery] Cache miss for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
         }
+    } else {
+        "[Get-SfDataQuery] Force is set. Ignoring cache for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
     }
 
     $params = @{
@@ -29,10 +36,12 @@ function Get-SfDataQuery{
 
     $result = Invoke-MyCommand -Command "sfDataQuery" -Parameters $params
 
+    Write-MyDebug "Result" -section "SfDataQuery" -Object $result
+
     $obj = $result | ConvertFrom-Json -Depth 10 -asHashtable
 
     if($obj.status -ne 0){
-        throw "Status $($obj.status)"
+        throw "Status $($obj.status) . Enable debug logging to see more details."
     }
 
     if($obj.result.done -ne $true){
@@ -177,7 +186,7 @@ function Get-SfDataQueryWithWhere{
     return $ret
 } Export-ModuleMember -Function Get-SfDataQueryWithWhere
 
-function Invoke-SfDataQuery{
+function Invoke-SfDataQueryWithWhere{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$From,
@@ -199,6 +208,6 @@ function Invoke-SfDataQuery{
 
     return $response
 
-} Export-ModuleMember -Function Invoke-SfDataQuery
+} Export-ModuleMember -Function Invoke-SfDataQueryWithWhere
 
 
