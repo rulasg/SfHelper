@@ -1,0 +1,23 @@
+{
+  "status": 0,
+  "result": {
+    "records": [
+      {
+        "attributes": {
+          "type": "User",
+          "url": "/services/data/v63.0/sobjects/User/0055c000009T2o8AAC"
+        },
+        "Id": "0055c000009T2o8AAC",
+        "Name": "Rulas Ghost",
+        "GitHub_Username__c": "rulasg",
+        "Email": "rulasg@github.com",
+        "Department": "Solutions Engineering",
+        "ManagerId": "0053o000008Skv3AAC",
+        "Username": "rulasg@github.com.main",
+        "Title": "Solutions Engineer"
+      }
+    ],
+    "totalSize": 1,
+    "done": true
+  }
+}
