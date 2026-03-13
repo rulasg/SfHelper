@@ -100,9 +100,11 @@ function Invoke-SfDataCreateAccountTeamMember{
     $command = $command -replace "{teammemberrole}", $TeamMemberRole
 
     Write-MyDebug " >> $command" -section "SfDataCreate"
-
+    
     $response = Invoke-Expression $command
-
+    
+    Write-MyDebug " << $command" -section "SfDataCreate"
+    
     Write-MyDebug "Response" -section "SfDataCreate" -Object $response
 
     return $response
