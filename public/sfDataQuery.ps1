@@ -19,10 +19,10 @@ function Get-SfDataQuery{
     if(-Not $Force){
         # Testcache first
         if(Test-Database -Key $cacheKey){
-            "[Get-SfDataQuery] Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            "[Get-SfDataQuery] 🟩 Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
             return Get-Database -Key $cacheKey
         } else{
-            "[Get-SfDataQuery] Cache miss for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            "[Get-SfDataQuery] 🟥 Cache miss for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
         }
     } else {
         "[Get-SfDataQuery] Force is set. Ignoring cache for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
@@ -124,8 +124,10 @@ function Invoke-SfDataQuery{
     $command = $command -replace "{id}", $Id
 
     Write-MyDebug " >> $command" -section "SfDataQuery"
-
+    
     $response = Invoke-Expression $command
+    
+    Write-MyDebug " << $command" -section "SfDataQuery"
 
     Write-MyDebug "Response" -section "SfDataQuery" -Object $response
 
@@ -201,8 +203,10 @@ function Invoke-SfDataQueryWithWhere{
     $command = $command -replace "{where}", $Where
 
     Write-MyDebug " >> $command" -section "SfDataQuery"
-
+    
     $response = Invoke-Expression $command
+    
+    Write-MyDebug " << $command" -section "SfDataQuery"
 
     Write-MyDebug "Response" -section "SfDataQuery" -Object $response
 
