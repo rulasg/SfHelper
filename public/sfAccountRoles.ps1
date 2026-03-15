@@ -1,6 +1,6 @@
 Set-MyInvokeCommandAlias -Alias "sfDataCreateAccountTeamMember" -Command  'Invoke-SfDataCreateAccountTeamMember -AccountId {accountid} -UserId {userid} -TeamMemberRole "{teammemberrole}"'
 
-function Get-SfAccountRole{
+function Get-SfAccountTeamMember{
     [CmdletBinding()]
     param(
         [Parameter(Position=0)][string]$SfUrl,
@@ -28,7 +28,7 @@ function Get-SfAccountRole{
     $ret = $response | NormalizeResponse
 
     return $ret
-} Export-ModuleMember -Function Get-SfAccountRole
+} Export-ModuleMember -Function Get-SfAccountTeamMember
 
 
 function NormalizeResponse{
@@ -53,7 +53,7 @@ function NormalizeResponse{
         }
     }
     
-function Set-SfAccountRole{
+function Set-SfAccountTeamMember{
     [CmdletBinding()]
     param(
         [Parameter(Position=0)][string]$SfUrl,
@@ -80,7 +80,7 @@ function Set-SfAccountRole{
     $ret = Invoke-MyCommand -Command "sfDataCreateAccountTeamMember" -Parameters $params
 
     return $ret
-} Export-ModuleMember -Function Set-SfAccountRole
+} Export-ModuleMember -Function Set-SfAccountTeamMember
 
 # Sample: rulasg - 0055c000009T2o8AAC
 # Sample account url : https://github.lightning.force.com/lightning/r/Account/0015c00002VbY47AAF/view
