@@ -1,7 +1,7 @@
 function Get-SfObjectUrl{
     [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName, Position=0)][string]$Id
+        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName, Position=0)][string]$Id
     )
 
     return "https://github.my.salesforce.com/$Id"
@@ -11,10 +11,13 @@ function Get-SfObjectUrl{
 function Open-SfObject{
     [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName, Position=0)][string]$Id
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName,ValueFromPipeline, Position=0)][string]$Id
     )
 
     $url = Get-SfObjectUrl -Id $Id
-    Open-Url -FilePath $url
 
-} Export-ModuleMember -Function Open-SfObjectUrl
+    "Opening Sf Url $url" | Write-MyDebug -Section "Open-SfObject"
+
+    Open-Url $url
+
+} Export-ModuleMember -Function Open-SfObject

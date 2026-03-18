@@ -57,7 +57,8 @@ function Get-SfUser{
     # remove attributes
     # $ret.PsObject.Properties.Remove("attributes")
 
-    return $ret
+    return [PSCustomObject] $ret
+
 } Export-ModuleMember -Function Get-SfUser
 
 function Get-SfUserByHandle{
@@ -144,6 +145,6 @@ function Get-SfUserByName{
             # remove attributes
             # $ret.PsObject.Properties.Remove("attributes")
             
-            return $ret
+            return [PSCustomObject] $ret
         }
 } Export-ModuleMember -Function Get-SfUserByName

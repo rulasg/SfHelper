@@ -83,5 +83,6 @@ function Get-SfOpportunity{
 
     # $ret.PsObject.Properties.Remove("attributes")
 
-    return $ret
+    return [PSCustomObject] $ret
+
 } Export-ModuleMember -Function Get-SfOpportunity

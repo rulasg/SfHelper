@@ -27,7 +27,8 @@ function Get-SfAccountTeamMember{
 
     $ret = $response | NormalizeResponse
 
-    return $ret
+    return [PSCustomObject] $ret
+
 } Export-ModuleMember -Function Get-SfAccountTeamMember
 
 

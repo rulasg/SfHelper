@@ -101,7 +101,8 @@ function Get-SfAccount{
         -NewAttributeName "OwnerName" `
         -RemoveOriginalAttribute
 
-    return $ret
+    return [pscustomobject] $ret
+
 } Export-ModuleMember -Function Get-SfAccount
 
 
