@@ -6,6 +6,7 @@ function Test_sfObjectIdFromUrl{
         "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/view",
         "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB/",
         "https://github.lightning.force.com/lightning/r/Account/0010V00002Q8r78QAB",
+        "https://github.lightning.force.com/lightning/r/0010V00002Q8r78QAB/view",
         "https://github.my.salesforce.com/0010V00002Q8r78QAB"
     )
 
@@ -32,6 +33,7 @@ function Test_sfObjectTypeFromUrl{
     }
 
     $urlList = @(
+        "https://github.lightning.force.com/lightning/r/0010V00002Q8r78QAB/view",
         "https://github.my.salesforce.com/0010V00002Q8r78QAB"
     )
     $urlList | ForEach-Object {
