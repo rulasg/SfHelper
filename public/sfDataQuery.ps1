@@ -1,10 +1,12 @@
 Set-MyInvokeCommandAlias -Alias "sfDataQuery" -Command  'Invoke-SfDataQuery -Type {type} -Id {id} -Attributes "{attributes}"'
 Set-MyInvokeCommandAlias -Alias "sfDataQueryWithWhere" -Command  'Invoke-SfDataQueryWithWhere -From {from} -Where "{where}" -Attributes "{attributes}"'
 
+$script:dbCache = @{}
+
 function Get-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$Type,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember","GitHub_Account_Teams__c")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
         [Parameter(Mandatory)][string[]]$Attributes,
         [switch]$Force
@@ -17,15 +19,26 @@ function Get-SfDataQuery{
 
     # avoid cache if Force is set
     if(-Not $Force){
+
+        # Memory
+        if($script:dbCache.ContainsKey($cacheKey)){
+            "[Get-SfDataQuery] 🟩 Memory Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            return $script:dbCache[$cacheKey]
+        }
+
         # Testcache first
         if(Test-Database -Key $cacheKey){
-            "[Get-SfDataQuery] 🟩 Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
-            return Get-Database -Key $cacheKey
+
+            "[Get-SfDataQuery] 🟧 Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            $ret = Get-Database -Key $cacheKey
+            $script:dbCache[$cacheKey] = $ret
+            return $ret
+
         } else{
             "[Get-SfDataQuery] 🟥 Cache miss for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
         }
     } else {
-        "[Get-SfDataQuery] Force is set. Ignoring cache for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+        "[Get-SfDataQuery] 🚫 Force is set. Ignoring cache for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
     }
 
     $params = @{
@@ -36,7 +49,7 @@ function Get-SfDataQuery{
 
     $result = Invoke-MyCommand -Command "sfDataQuery" -Parameters $params
 
-    Write-MyDebug "Result" -section "SfDataQuery" -Object $result
+    "[Get-SfDataQuery] Result for Id $Id and Type $Type" | Write-MyDebug -section "SfDataQuery" -Object $result
 
     $obj = $result | ConvertFrom-Json -Depth 10 -asHashtable
 
@@ -49,7 +62,7 @@ function Get-SfDataQuery{
     }
 
     if($obj.result.TotalSize -eq 0){
-        "Account not found" | Write-Host
+        "$Type not found" | Write-Host
         return $null
     }
 
@@ -57,6 +70,8 @@ function Get-SfDataQuery{
 
     $ret | Add-Member -MemberType NoteProperty -Name "QueryDate" -Value (Get-Date)
 
+    "[Get-SfDataQuery] ⭕️ Saving to $cacheKey" | Write-MyDebug -section "SfDataQuery"
+    $script:dbCache[$cacheKey] = $ret
     Save-Database -Key $cacheKey -Database $ret
 
     return $ret
@@ -111,16 +126,25 @@ function getcacheKey2{
 function Invoke-SfDataQuery{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$Type,
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember","GitHub_Account_Teams__c")][string]$Type,
         [Parameter(Mandatory)][string]$Id,
         [Parameter(Mandatory)][string]$Attributes
 
     )
 
+    switch ($Type) {
+        "Account" { $idName = "Id" }
+        "User" { $idName = "Id" }
+        "Opportunity" { $idName = "Id" }
+        "AccountTeamMember" { $idName = "AccountId" }
+        "GitHub_Account_Teams__c" { $idName = "Account__c" }
+        default { throw "Invalid type $Type" }
+    }
+
     $command = 'sf data query --query "SELECT {attributes} FROM {type} WHERE {idName}=''{id}''" -r=json'
     $command = $command -replace "{attributes}", $Attributes
     $command = $command -replace "{type}", $Type
-    $command = $command -replace "{idName}", $($Type -eq "AccountTeamMember" ? "AccountId" : "Id")
+    $command = $command -replace "{idName}", $idName
     $command = $command -replace "{id}", $Id
 
     Write-MyDebug " >> $command" -section "SfDataQuery"
@@ -138,7 +162,7 @@ function Invoke-SfDataQuery{
 function Get-SfDataQueryWithWhere{
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember")][string]$From,
+        [Parameter(Mandatory)][string]$From,
         [Parameter(Mandatory)][string]$Where,
         [Parameter(Mandatory)][string[]]$Attributes,
         [Parameter(Mandatory)][string]$Name,
@@ -148,12 +172,28 @@ function Get-SfDataQueryWithWhere{
     # Get Cache Key to read or write the output
     $cacheKey = getcacheKey2 -From $From -Where $Where -Attributes $Attributes -Name $Name
 
+    "[Get-SfDataQueryWithWhere] CacheKey : $cacheKey" | Write-MyDebug -section "SfDataQuery"
+
     # avoid cache if Force is set
     if(-Not $Force){
+
+        # Memory
+        if($script:dbCache.ContainsKey($cacheKey)){
+            "[Get-SfDataQueryWithWhere] 🟩 Memory Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            return $script:dbCache[$cacheKey]
+        }
+
         # Testcache first
         if(Test-Database -Key $cacheKey){
-            return Get-Database -Key $cacheKey
+            "[Get-SfDataQueryWithWhere] 🟧 Cache hit for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
+            $ret = Get-Database -Key $cacheKey
+            $script:dbCache[$cacheKey] = $ret
+            return $ret
+        } else{
+            "[Get-SfDataQueryWithWhere] 🟥 Cache miss for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
         }
+    } else {
+        "[Get-SfDataQuery] 🚫 Force is set. Ignoring cache for key $cacheKey" | Write-MyDebug -section "SfDataQuery"
     }
 
     $params = @{
@@ -163,6 +203,8 @@ function Get-SfDataQueryWithWhere{
     }
 
     $result = Invoke-MyCommand -Command "sfDataQueryWithWhere" -Parameters $params
+
+    "[sfDataQueryWithWhere] Result From $From and Where $Where" | Write-MyDebug -section "SfDataQuery" -Object $result
 
     $obj = $result | ConvertFrom-Json -Depth 10 -asHashtable
 
@@ -183,11 +225,14 @@ function Get-SfDataQueryWithWhere{
 
     $ret | Add-Member -MemberType NoteProperty -Name "QueryDate" -Value (Get-Date)
 
+    "[sfDataQueryWithWhere] ⭕️ Saving to $cacheKey" | Write-MyDebug -section "SfDataQuery"
+    $script:dbCache[$cacheKey] = $ret
     Save-Database -Key $cacheKey -Database $ret
 
     return $ret
 } Export-ModuleMember -Function Get-SfDataQueryWithWhere
 
+# Sample : Invoke-SfDataQueryWithWhere -From GitHub_Account_Teams__c -Where 'Account__c=''0013o00002S5hK9AAJ''' -Attributes id
 function Invoke-SfDataQueryWithWhere{
     [CmdletBinding()]
     param(
