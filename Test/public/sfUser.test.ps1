@@ -1,7 +1,5 @@
 function Test_GetSfUserByHandle{
 
-    Reset-InvokeCommandMock
-
     # Mocks
     Mock_Database -ResetDatabase
     Mock_Config
@@ -22,8 +20,6 @@ function Test_GetSfUserByHandle{
 }
 
 function Test_GetSfUserByHandle_Cache{
-
-    Reset-InvokeCommandMock
 
     # Mocks
     Mock_Database -ResetDatabase

@@ -1,6 +1,5 @@
 function Test_GetSfOpportunity{
 
-    Reset-InvokeCommandMock
     Mock_Database -ResetDatabase
     Mock_Config
 
