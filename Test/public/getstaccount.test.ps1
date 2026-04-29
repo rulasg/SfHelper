@@ -1,7 +1,5 @@
 function Test_GetSfAccount{
 
-    Reset-InvokeCommandMock
-
     $mockAttrib = @{account_attributes = @("Potential_Seats_Manual__c","Website","PhotoUrl")}
 
     # Mocks
@@ -38,8 +36,6 @@ function Test_GetSfAccount{
 
 function Test_GetSfAccount_cache{
 
-    Reset-InvokeCommandMock
-
     $mockAttrib = @{account_attributes = @("Potential_Seats_Manual__c","Website","PhotoUrl")}
 
     # Mocks
@@ -62,7 +58,14 @@ function Test_GetSfAccount_cache{
     $mockdata.Country_Name__c = "kkContry"
     $mockdata | ConvertTo-Json -Depth 10 | Set-Content -Path $path
 
-    # Act with cache
+    # Act with memory cache
+    $result = Get-SfAccount -SfUrl $url
+    Assert-AreEqual -Expected "Spain" -Presented $result.Country_Name__c
+
+    # Reset memory to ready from file
+    Invoke-PrivateContext -ScriptBlock { $script:dbCache = @{} }
+
+    # Act read from file cache
     $result = Get-SfAccount -SfUrl $url
     Assert-AreEqual -Expected "kkContry" -Presented $result.Country_Name__c
     
