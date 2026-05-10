@@ -59,7 +59,7 @@ function Get-SfAccount{
         }
     }
 
-    "[GetSfAccoount] $Id" | Write-MyDebug -section "Get-SfAccount"
+    "[GetSfAccount] $Id" | Write-MyDebug -section "Get-SfAccount"
 
     $attributes = @(
         "Id",
