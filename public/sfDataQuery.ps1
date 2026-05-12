@@ -3,6 +3,20 @@ Set-MyInvokeCommandAlias -Alias "sfDataQueryWithWhere" -Command  'Invoke-SfDataQ
 
 $script:dbCache = @{}
 
+function Reset-SfDataQueryCache{
+    param(
+        [Parameter(Mandatory)][ValidateSet("Account", "User", "Opportunity","AccountTeamMember","GitHub_Account_Teams__c")][string]$Type,
+        [Parameter(Mandatory)][string]$Id,
+        [Parameter(Mandatory)][string[]]$Attributes
+    )
+
+    $cacheKey = getcacheKey -Type $Type -Id $Id -Attributes $Attributes
+
+    $script:dbCache.Remove($cacheKey)
+    Reset-Database -Key $cacheKey
+
+}
+
 function Get-SfDataQuery{
     [CmdletBinding()]
     param(
@@ -159,18 +173,34 @@ function Invoke-SfDataQuery{
 
 } Export-ModuleMember -Function Invoke-SfDataQuery
 
+
+function Reset-SfDataQueryWithWhereCache{
+    param(
+        [Parameter(Mandatory)][string]$From,
+        [Parameter(Mandatory)][string]$Where,
+        [Parameter(Mandatory)][string[]]$Attributes,
+        [Parameter()][string]$Name
+    )
+
+    $cacheKey = getcacheKey2 -From $From -Where $Where -Attributes $Attributes -Name:$Name
+
+    $script:dbCache.Remove($cacheKey)
+    Reset-Database -Key $cacheKey
+
+}
+
 function Get-SfDataQueryWithWhere{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$From,
         [Parameter(Mandatory)][string]$Where,
         [Parameter(Mandatory)][string[]]$Attributes,
-        [Parameter(Mandatory)][string]$Name,
+        [Parameter()][string]$Name,
         [switch]$Force
     )
     
     # Get Cache Key to read or write the output
-    $cacheKey = getcacheKey2 -From $From -Where $Where -Attributes $Attributes -Name $Name
+    $cacheKey = getcacheKey2 -From $From -Where $Where -Attributes $Attributes -Name:$Name
 
     "[Get-SfDataQueryWithWhere] CacheKey : $cacheKey" | Write-MyDebug -section "SfDataQuery"
 
