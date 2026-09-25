@@ -91,6 +91,7 @@ function Get-SfUserByHandle{
         From = "User"
         Where = "GitHub_Username__c='$Handle'"
         Attributes = ($attributes -join ",")
+        Force = $Force.IsPresent
     }
 
     # Get object
@@ -137,6 +138,7 @@ function Get-SfUserByName{
                 From = "User"
                 Where = "Name='$Name'"
                 Attributes = ($attributes -join ",")
+                Force = $Force.IsPresent
             }
             
             # Get object
