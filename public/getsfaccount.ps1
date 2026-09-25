@@ -106,3 +106,59 @@ function Get-SfAccount{
 } Export-ModuleMember -Function Get-SfAccount
 
 
+function Get-SfAccountByName{
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0)][string]$AccountName,
+        [string]$AdditionalAttributes,
+        [switch]$Force,
+        [Parameter()][string]$Id
+    )
+
+    $type = "Account"
+
+    "[Get-SfAccountByName] $AccountName" | Write-MyDebug -section "Get-SfAccount"
+
+    $attributes = @(
+        "Id",
+        "Name",
+        "OwnerId",
+        "Industry",
+        "Account_Owner__c",
+        "Account_Segment__c",
+        "Account_Owner_Role__c",
+        "Account_Tier__c",
+        "Potential_Seats__c",
+        "Country_Name__c",
+        "Current_Seats__c",
+        "Current_ARR_10__c",
+        "Salesforce_Record_URL__c"
+    )
+
+    # Add attributes from parameter
+    if ($AdditionalAttributes) {
+        $additionalAttributesArray = $AdditionalAttributes -split ","
+        "adding attributes from additional attributes $additionalAttributesArray" | Write-Verbose
+        $attributes += $additionalAttributesArray | Select-Object -Unique
+    }
+
+    ## Add attributes from config
+    if (Test-Configuration ) {
+        $config = Get-Configuration
+        $attributesFromConfig = $config.account_attributes
+        "adding attributes from config $($attributesFromConfig -join ',' )" | Write-Verbose
+        $attributes += $attributesFromConfig | Select-Object -Unique
+    }
+
+    # Get object
+    $ret = Get-SfDataQueryWithWhere -From $type -Attributes $attributes -Force:$Force -Where "Name='$AccountName'" -Name "AccountByName_"
+
+    # Transformations
+    $ret = $ret | Edit-AttributeValueFromHTML `
+        -AttributeName "Account_Owner__c" `
+        -NewAttributeName "OwnerName" `
+        -RemoveOriginalAttribute
+
+    return [pscustomobject] $ret
+
+} Export-ModuleMember -Function Get-SfAccountByName
